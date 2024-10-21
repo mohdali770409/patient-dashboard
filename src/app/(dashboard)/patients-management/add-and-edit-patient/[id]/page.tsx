@@ -1,8 +1,10 @@
+
 import React from 'react'
+import AddAndEditPatientComponent from '../../components/AddAndEditPatientComponent'
 
 const AddAndEditPatients = () => {
   return (
-    <div>AddAndEditPatients</div>
+    <div className='mt-10'><AddAndEditPatientComponent data = {{}} /></div>
   )
 }
 
