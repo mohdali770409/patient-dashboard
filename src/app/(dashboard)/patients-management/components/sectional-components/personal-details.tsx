@@ -21,7 +21,25 @@ const PersonalDetailsComponent: React.FC = () => {
 
   return (
     <div className="bg-gray-50 shadow-md px-6 pt-5 pb-10 rounded-md">
-      <h1 className="font-semibold mb-3 text-gray-500">Basic Details</h1>
+      <h1 className="font-semibold mb-3 text-gray-500">Patient Particulars</h1>
+
+      <div className="flex flex-col md:justify-between md:flex-row md:gap-20">
+        <div className="w-full">
+          <FormField
+            control={control}
+            name="registrationNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="required">Registration Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="Registration Number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
 
       <div className="flex flex-col md:justify-between md:flex-row md:gap-20">
         <div className="w-full">
@@ -129,6 +147,37 @@ const PersonalDetailsComponent: React.FC = () => {
           )}
         />
       </div>
+      </div>
+
+      <div className="flex flex-col md:justify-between md:flex-row md:gap-20">
+        <div className="w-full">
+          <FormField
+            control={control}
+            name="religion"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="required">Religion</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose Religion" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="islam">Islam</SelectItem>
+                    <SelectItem value="hindu">Hindu</SelectItem>
+                    <SelectItem value="christianity">Christianity</SelectItem>
+                    <SelectItem value="jew">Jew</SelectItem>
+                    <SelectItem value="buddhist">Buddhist</SelectItem>
+                    <SelectItem value="jain">Jain</SelectItem>
+                    <SelectItem value="others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       </div>
     </div>
   );

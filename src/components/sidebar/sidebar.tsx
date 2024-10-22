@@ -17,7 +17,7 @@ const Sidebar = () => {
       isSelected: false,
     },
     {
-      title: "Patients",
+      title: "Patients Management",
       svgUrl: "/sidebar-icons/patient.svg",
       route: "/patients-management",
       isSelected: false,
