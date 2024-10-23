@@ -8,13 +8,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronsUpDown, Eye, FilePenLine, MoreHorizontal } from "lucide-react";
+import {
+  ChevronsUpDown,
+  Eye,
+  FilePenLine,
+  MoreHorizontal,
+  Trash,
+} from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import DataTable from "@/components/DataTable/DataTable";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnDef } from "@tanstack/react-table";
 import { getPatientsData } from "@/services/patient.service";
+import DeleteButtonHandler from "./components/delete-button-handler";
 
 const Patients = () => {
   const [patientsData, setPatientsData] = useState([]);
@@ -30,6 +37,10 @@ const Patients = () => {
   useEffect(() => {
     fetchPatientsData();
   }, []);
+
+  const handleDelete = ((id: string) => {
+    setPatientsData((prevData) => prevData.filter((item: any) => item._id !== id));
+  });
 
   const columns: ColumnDef<any>[] = [
     {
@@ -52,7 +63,8 @@ const Patients = () => {
       },
       enableGlobalFilter: true,
       cell: ({ row }) => {
-        const name = `${row.original?.firstName} ${row.original?.lastName}` || "";
+        const name =
+          `${row.original?.firstName} ${row.original?.lastName}` || "";
         const phone = row.original?.phone || "";
         return (
           <div>
@@ -61,7 +73,6 @@ const Patients = () => {
           </div>
         );
       },
-      
     },
     {
       accessorKey: "age",
@@ -149,7 +160,9 @@ const Patients = () => {
                 asChild
               >
                 {/* view button handler */}
-                <Link href={`/patients-management/patient-details/${row.original._id}`}>
+                <Link
+                  href={`/patients-management/patient-details/${row.original._id}`}
+                >
                   <div className="flex items-center">
                     <Eye className="mr-1 h-4 inline-block" />
                     <span className="font-semibold"> View</span>
@@ -165,7 +178,10 @@ const Patients = () => {
                 }}
                 asChild
               >
-                <div className="flex items-center">Delete</div>
+                <DeleteButtonHandler
+                  id={row.original._id}
+                  onDelete={handleDelete}
+                />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

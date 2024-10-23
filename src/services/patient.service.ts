@@ -8,11 +8,10 @@ export const addEditPatientBasicDetails = async (data: any) => {
   try {
     const response = await axios.post(url, data);
     return response?.data;
-  } catch (error) {     
+  } catch (error) {
     console.log(error);
   }
 };
-
 
 export const getPatientsData = async () => {
   console.log("Environment Domain:", process.env.NEXT_PUBLIC_DOMAIN);
@@ -21,20 +20,30 @@ export const getPatientsData = async () => {
   try {
     const response = await axios.get(url);
     return response?.data?.patients;
-  } catch (error) {     
+  } catch (error) {
     console.log(error);
   }
-};  
+};
 
-export const getPatientDataById = async (id:string) => {
+export const getPatientDataById = async (id: string) => {
   console.log("Environment Domain:", process.env.NEXT_PUBLIC_DOMAIN);
   const url = `${API.domain}${API.endPoints.getPatientsDetails}/${id}`;
   console.log(url);
   try {
     const response = await axios.get(url);
     return response?.data?.patients;
-  } catch (error) {     
+  } catch (error) {
     console.log(error);
   }
 };
 
+export const deletePatient = async (id: {id: string}) => {
+  const url = `${API.domain}${API.endPoints.deletePatient}`;
+  console.log(url);
+  try {
+    const response = await axios.post(url,  id );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
