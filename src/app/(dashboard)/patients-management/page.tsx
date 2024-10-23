@@ -10,17 +10,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronsUpDown, Eye, FilePenLine, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DataTable from "@/components/DataTable/DataTable";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnDef } from "@tanstack/react-table";
+import { getPatientsData } from "@/services/patient.service";
 
 const Patients = () => {
-  // const { toast } = useToast();
+  const [patientsData, setPatientsData] = useState([]);
+  const fetchPatientsData = async () => {
+    try {
+      const res = await getPatientsData();
+      setPatientsData(res);
+      console.log("res", res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchPatientsData();
+  }, []);
 
   const columns: ColumnDef<any>[] = [
     {
-      accessorKey: "name",
+      accessorKey: "firstName",
       header: ({ column }) => {
         return (
           <Button
@@ -37,8 +50,9 @@ const Patients = () => {
           </Button>
         );
       },
+      enableGlobalFilter: true,
       cell: ({ row }) => {
-        const name = row.original?.name || "";
+        const name = `${row.original?.firstName} ${row.original?.lastName}` || "";
         const phone = row.original?.phone || "";
         return (
           <div>
@@ -47,6 +61,7 @@ const Patients = () => {
           </div>
         );
       },
+      
     },
     {
       accessorKey: "age",
@@ -116,7 +131,7 @@ const Patients = () => {
                 asChild
               >
                 <Link
-                  href={`/venue-management/add-and-edit-venue/${row.original._id}`}
+                  href={`/patients-management/add-and-edit-patient/${row.original._id}`}
                   className="pointer-cursor flex items-center"
                 >
                   <FilePenLine className="mr-1 h-4" />
@@ -134,7 +149,7 @@ const Patients = () => {
                 asChild
               >
                 {/* view button handler */}
-                <Link href={`/patients/patient-details/${row.original._id}`}>
+                <Link href={`/patients-management/patient-details/${row.original._id}`}>
                   <div className="flex items-center">
                     <Eye className="mr-1 h-4 inline-block" />
                     <span className="font-semibold"> View</span>
@@ -160,7 +175,7 @@ const Patients = () => {
   ];
   return (
     <div className="w-full">
-      <DataTable columns={columns} patientsHeader={true} data={[]} />
+      <DataTable columns={columns} patientsHeader={true} data={patientsData} />
     </div>
   );
 };

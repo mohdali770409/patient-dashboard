@@ -15,15 +15,24 @@ import GeneralPhysicalExaminationComponent from "./sectional-components/general-
 import LocalExaminationComponent from "./sectional-components/local-examination";
 import SystemicExaminationComponent from "./sectional-components/systemic-examination";
 import OtherSystemicExaminationComponent from "./sectional-components/other-systemic-examination";
-
+import TreatmentsComponent from "./sectional-components/treatments";
+import { addEditPatientBasicDetails } from "@/services/patient.service";
 
 export const BasicDetailsSchema = z.object({
-  registrationNumber: z.string().min(1, { message: "Registration Number is required." }),
-  tokenNumber: z.string().optional(),
-  firstName: z.string().min(2, { message: "First Name must be at least 2 characters." }),
+  id: z.string().optional(),
+  registrationNumber: z
+    .string()
+    .min(1, { message: "Registration Number is required." }),
+  firstName: z
+    .string()
+    .min(2, { message: "First Name must be at least 2 characters." }),
   lastName: z.string().optional(),
   phone: z.string().min(10, { message: "Phone Number must be of 10 digits." }),
-  email: z.string().email({ message: "Please enter a valid email address or leave it empty" }).or(z.literal("")).optional(),
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email address or leave it empty" })
+    .or(z.literal(""))
+    .optional(),
   religion: z.string().min(1, { message: "Religion is required." }),
   age: z.string(),
   gender: z.string().optional(),
@@ -35,6 +44,7 @@ export const BasicDetailsSchema = z.object({
 });
 
 export const AdvancedDetailsSchema = z.object({
+  id: z.string().optional(),
   historyOfMajorIllness: z.string().optional(),
   majorDiseases: z.array(z.string()).optional(),
   provisionalDiagnosis: z.string().optional(),
@@ -117,6 +127,11 @@ export const AdvancedDetailsSchema = z.object({
       auscultation: z.string().optional(),
     }),
   }),
+  treatments: z.object({
+    previousHospitalRecord: z.string().optional(),
+    previousHospitalPlan: z.string().optional(),
+    ourPlanOfAction: z.string().optional(),
+  }),
 });
 
 interface AddAndEditPatientComponentProps {
@@ -133,8 +148,8 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
   const basicForm = useForm<z.infer<typeof BasicDetailsSchema>>({
     resolver: zodResolver(BasicDetailsSchema),
     defaultValues: {
+      id: data?._id || "",
       registrationNumber: data?.registrationNumber || "",
-      tokenNumber: data?.token || "0",
       firstName: data?.firstName || "",
       lastName: data?.lastName || "",
       phone: data?.phone || "",
@@ -153,6 +168,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
   const advancedForm = useForm<z.infer<typeof AdvancedDetailsSchema>>({
     resolver: zodResolver(AdvancedDetailsSchema),
     defaultValues: {
+      id: data?._id || "",
       historyOfMajorIllness: data?.historyOfMajorIllness || "",
       majorDiseases: data?.majorDiseases || [],
       provisionalDiagnosis: data?.provisionalDiagnosis || "",
@@ -220,32 +236,58 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
           inspection: data?.otherSystemicExamination?.renal?.inspection || "",
           palpation: data?.otherSystemicExamination?.renal?.palpation || "",
           percussion: data?.otherSystemicExamination?.renal?.percussion || "",
-          auscultation: data?.otherSystemicExamination?.renal?.auscultation || "",
+          auscultation:
+            data?.otherSystemicExamination?.renal?.auscultation || "",
         },
         gastrointestinal: {
-          inspection: data?.otherSystemicExamination?.gastrointestinal?.inspection || "",
-          palpation: data?.otherSystemicExamination?.gastrointestinal?.palpation || "",
-          percussion: data?.otherSystemicExamination?.gastrointestinal?.percussion || "",
-          auscultation: data?.otherSystemicExamination?.gastrointestinal?.auscultation || "",
+          inspection:
+            data?.otherSystemicExamination?.gastrointestinal?.inspection || "",
+          palpation:
+            data?.otherSystemicExamination?.gastrointestinal?.palpation || "",
+          percussion:
+            data?.otherSystemicExamination?.gastrointestinal?.percussion || "",
+          auscultation:
+            data?.otherSystemicExamination?.gastrointestinal?.auscultation ||
+            "",
         },
         cardiovascular: {
-          inspection: data?.otherSystemicExamination?.cardiovascular?.inspection || "",
-          palpation: data?.otherSystemicExamination?.cardiovascular?.palpation || "",
-          percussion: data?.otherSystemicExamination?.cardiovascular?.percussion || "",
-          auscultation: data?.otherSystemicExamination?.cardiovascular?.auscultation || "",
+          inspection:
+            data?.otherSystemicExamination?.cardiovascular?.inspection || "",
+          palpation:
+            data?.otherSystemicExamination?.cardiovascular?.palpation || "",
+          percussion:
+            data?.otherSystemicExamination?.cardiovascular?.percussion || "",
+          auscultation:
+            data?.otherSystemicExamination?.cardiovascular?.auscultation || "",
         },
+      },
+      treatments: {
+        previousHospitalRecord: data?.treatments?.previousHospitalRecord || "",
+        previousHospitalPlan: data?.treatments?.previousHospitalPlan || "",
+        ourPlanOfAction: data?.treatments?.ourPlanOfAction || "",
       },
     },
   });
 
-  const onSubmitBasic = (formData: z.infer<typeof BasicDetailsSchema>) => {
+  const onSubmitBasic = async (
+    formData: z.infer<typeof BasicDetailsSchema>
+  ) => {
     console.log("Basic Details:", formData);
+    try {
+      const response = await addEditPatientBasicDetails(formData);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+
     setIsEditMode(true);
     setActiveTab("advanced");
     // Handle basic details submission
   };
 
-  const onSubmitAdvanced = (formData: z.infer<typeof AdvancedDetailsSchema>) => {
+  const onSubmitAdvanced = (
+    formData: z.infer<typeof AdvancedDetailsSchema>
+  ) => {
     console.log("Advanced Details:", formData);
     // Handle advanced details submission
     // Here, you would typically send this data to your API
@@ -256,6 +298,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
     //   { temperature: 36.7, bloodPressure: "118/78", pulseRate: 70, spO2: 99, respiratoryRate: 15, date: "2023-04-21T11:15:00Z" },
     // ]
   };
+  console.log("data from add and edit component", data);
 
   return (
     <div className="">
@@ -271,11 +314,18 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
 
         <TabsContent value="basic">
           <Form {...basicForm}>
-            <form onSubmit={basicForm.handleSubmit(onSubmitBasic)} className="space-y-8">
+            <form
+              onSubmit={basicForm.handleSubmit(onSubmitBasic)}
+              className="space-y-8"
+            >
               <PersonalDetailsComponent />
               <AddressComponent />
               <div className="flex gap-3 justify-end mt-5">
-                <Button type="button" variant="secondary" onClick={() => router.back()}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => router.back()}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">Save & Continue</Button>
@@ -286,15 +336,23 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
 
         <TabsContent value="advanced">
           <Form {...advancedForm}>
-            <form onSubmit={advancedForm.handleSubmit(onSubmitAdvanced)} className="space-y-8">
+            <form
+              onSubmit={advancedForm.handleSubmit(onSubmitAdvanced)}
+              className="space-y-8"
+            >
               <GeneralPhysicalExaminationComponent />
               <LocalExaminationComponent />
               <SystemicExaminationComponent />
               <OtherSystemicExaminationComponent />
+              <TreatmentsComponent />
               <MedicalHistoryComponent />
               <DiagnosisComponent />
               <div className="flex gap-3 justify-end mt-5">
-                <Button type="button" variant="secondary" onClick={() => setActiveTab("basic")}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setActiveTab("basic")}
+                >
                   Back
                 </Button>
                 <Button type="submit">Save</Button>
