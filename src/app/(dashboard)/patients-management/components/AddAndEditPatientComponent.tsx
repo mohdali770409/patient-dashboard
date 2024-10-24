@@ -16,8 +16,15 @@ import LocalExaminationComponent from "./sectional-components/local-examination"
 import SystemicExaminationComponent from "./sectional-components/systemic-examination";
 import OtherSystemicExaminationComponent from "./sectional-components/other-systemic-examination";
 import TreatmentsComponent from "./sectional-components/treatments";
-import { addEditPatientBasicDetails } from "@/services/patient.service";
-
+import {
+  addEditPatientAdvancedDetails,
+  addEditPatientBasicDetails,
+} from "@/services/patient.service";
+import { useToast } from "@/hooks/use-toast";
+import OngoingTreatmentComponent from "./sectional-components/ongoing-treatment";
+import SymptomsDiseases from "./sectional-components/symptoms-diseases";
+import ChiefComplaintComponent from "./sectional-components/chief-complaint";
+import InvestigationsComponent from "./sectional-components/investigations";
 export const BasicDetailsSchema = z.object({
   id: z.string().optional(),
   registrationNumber: z
@@ -127,10 +134,104 @@ export const AdvancedDetailsSchema = z.object({
       auscultation: z.string().optional(),
     }),
   }),
-  treatments: z.object({
-    previousHospitalRecord: z.string().optional(),
-    previousHospitalPlan: z.string().optional(),
-    ourPlanOfAction: z.string().optional(),
+  treatmentsAtPreviousHospital: z.object({
+    treatmentReceivedAtTimeOfAdmission: z.string().optional(),
+    dischargeWithFollowingTreatment: z.string().optional(),
+  }),
+  chiefComplaint: z.string().min(1, { message: "Chief complaint is required" }),
+  medicalHistory: z.object({
+    historyOfPresentIllness: z.string().optional(),
+    pastHistory: z.string().optional(),
+    personalHistory: z.string().optional(),
+    familyHistory: z.string().optional(),
+    historyOfMajorIllness: z.string().optional(),
+  }),
+  investigations: z.object({
+    laboratoryAnalysis: z.object({
+      bodyFluid: z.object({
+        bloodAnalysis: z.string().optional(),
+        csf: z.string().optional(),
+        asciticFluid: z.string().optional(),
+        pleuralFluid: z.string().optional(),
+        amnioticFluid: z.string().optional(),
+        synvonialFluid: z.string().optional(),
+        mucus: z.string().optional(),
+        others: z.string().optional(),
+      }),
+      urineAnalysis: z.string().optional(),
+      stoolAnalysis: z.string().optional(),
+      others: z.string().optional(),
+    }),
+    imaging: z.object({
+      xray: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      ct: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      cect: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      hrct: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      mri: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      hsg: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      usg: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      others: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+    }),
+    biopsy: z.string().optional(),
+    markers: z.string().optional(),
+  }),
+});
+
+export const OngoingTreatmentSchema = z.object({
+  id: z.string().optional(),
+  ourPlanOfAction: z.string().min(1, "Plan of action is required"),
+  status: z.enum(["cured", "defaulter"]),
+});
+
+export const PatientParticularsSchema = z.object({
+  id: z.string().optional(),
+  registrationNumber: z
+    .string()
+    .min(1, { message: "Registration Number is required." }),
+  firstName: z
+    .string()
+    .min(2, { message: "First Name must be at least 2 characters." }),
+  lastName: z.string().optional(),
+  phone: z.string().min(10, { message: "Phone Number must be of 10 digits." }),
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email address or leave it empty" })
+    .or(z.literal(""))
+    .optional(),
+  religion: z.string().min(1, { message: "Religion is required." }),
+  age: z.string(),
+  gender: z.string().optional(),
+  street: z.string(),
+  locality: z.string(),
+  city: z.string(),
+  state: z.string(),
+  pinCode: z.string(),
+  symptomsAndDiseases: z.array(z.string()).min(1, {
+    message: "Please select at least one symptom or disease",
   }),
 });
 
@@ -142,8 +243,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
   data,
 }) => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("basic");
-  const [isEditMode, setIsEditMode] = useState(!!data?._id);
+  const [activeTab, setActiveTab] = useState("caseHistory");
+  const [patientId, setPatientId] = useState(data?._id || "");
+  const { toast } = useToast();
 
   const basicForm = useForm<z.infer<typeof BasicDetailsSchema>>({
     resolver: zodResolver(BasicDetailsSchema),
@@ -175,7 +277,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
       differentialDiagnosis: data?.differentialDiagnosis || "",
       finalDiagnosis: data?.finalDiagnosis || "",
       vitalSigns: {
-        temperature: data?.vitalSigns?.temperature || undefined,
+        temperature:
+          data?.vitalSigns[data?.vitalSigns?.length - 1]?.temperature ||
+          undefined,
         bloodPressure: data?.vitalSigns?.bloodPressure || "",
         pulseRate: data?.vitalSigns?.pulseRate || undefined,
         spO2: data?.vitalSigns?.spO2 || undefined,
@@ -261,43 +365,167 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
             data?.otherSystemicExamination?.cardiovascular?.auscultation || "",
         },
       },
-      treatments: {
-        previousHospitalRecord: data?.treatments?.previousHospitalRecord || "",
-        previousHospitalPlan: data?.treatments?.previousHospitalPlan || "",
-        ourPlanOfAction: data?.treatments?.ourPlanOfAction || "",
+      treatmentsAtPreviousHospital: {
+        treatmentReceivedAtTimeOfAdmission:
+          data?.treatmentsAtPreviousHospital
+            ?.treatmentReceivedAtTimeOfAdmission || "",
+        dischargeWithFollowingTreatment:
+          data?.treatmentsAtPreviousHospital.dischargeWithFollowingTreatment ||
+          "",
+      },
+      medicalHistory: {
+        historyOfPresentIllness:
+          data?.medicalHistory?.historyOfPresentIllness || "",
+        pastHistory: data?.medicalHistory?.pastHistory || "",
+        personalHistory: data?.medicalHistory?.personalHistory || "",
+        familyHistory: data?.medicalHistory?.familyHistory || "",
+        historyOfMajorIllness:
+          data?.medicalHistory?.historyOfMajorIllness || "",
+      },
+      investigations: {
+        laboratoryAnalysis: {
+          bodyFluid: {
+            bloodAnalysis:
+              data?.investigations?.laboratoryAnalysis?.bodyFluid
+                ?.bloodAnalysis || "",
+            csf: data?.investigations?.laboratoryAnalysis?.bodyFluid?.csf || "",
+            asciticFluid:
+              data?.investigations?.laboratoryAnalysis?.bodyFluid
+                ?.asciticFluid || "",
+            pleuralFluid:
+              data?.investigations?.laboratoryAnalysis?.bodyFluid
+                ?.pleuralFluid || "",
+            amnioticFluid:
+              data?.investigations?.laboratoryAnalysis?.bodyFluid
+                ?.amnioticFluid || "",
+            synvonialFluid:
+              data?.investigations?.laboratoryAnalysis?.bodyFluid
+                ?.synvonialFluid || "",
+            mucus:
+              data?.investigations?.laboratoryAnalysis?.bodyFluid?.mucus || "",
+            others:
+              data?.investigations?.laboratoryAnalysis?.bodyFluid?.others || "",
+          },
+          urineAnalysis:
+            data?.investigations?.laboratoryAnalysis?.urineAnalysis || "",
+          stoolAnalysis:
+            data?.investigations?.laboratoryAnalysis?.stoolAnalysis || "",
+          others: data?.investigations?.laboratoryAnalysis?.others || "",
+        },
+        imaging: {
+          xray: { report: "", images: [] },
+          ct: { report: "", images: [] },
+          cect: { report: "", images: [] },
+          hrct: { report: "", images: [] },
+          mri: { report: "", images: [] },
+          hsg: { report: "", images: [] },
+          usg: { report: "", images: [] },
+          others: { report: "", images: [] },
+        },
+        biopsy: data?.investigations?.biopsy || "",
+        markers: data?.investigations?.markers || "",
       },
     },
   });
 
-  const onSubmitBasic = async (
+  const ongoingTreatmentForm = useForm<z.infer<typeof OngoingTreatmentSchema>>({
+    resolver: zodResolver(OngoingTreatmentSchema),
+    defaultValues: {
+      id: data?._id || "",
+      ourPlanOfAction: data?.ourPlanOfAction || "",
+      status: data?.status || undefined,
+    },
+  });
+
+  const patientParticularsForm = useForm<
+    z.infer<typeof PatientParticularsSchema>
+  >({
+    resolver: zodResolver(PatientParticularsSchema),
+    defaultValues: {
+      id: data?._id || "",
+      registrationNumber: data?.registrationNumber || "",
+      firstName: data?.firstName || "",
+      lastName: data?.lastName || "",
+      phone: data?.phone || "",
+      email: data?.email || "",
+      religion: data?.religion || "",
+      age: data?.age || "",
+      gender: data?.gender || "",
+      street: data?.street || "",
+      locality: data?.locality || "",
+      city: data?.city || "",
+      state: data?.state || "",
+      pinCode: data?.pinCode || "",
+      symptomsAndDiseases: data?.symptomsAndDiseases || [],
+    },
+  });
+
+  const onSubmitPatientParticulars = async (
     formData: z.infer<typeof BasicDetailsSchema>
   ) => {
-    console.log("Basic Details:", formData);
     try {
       const response = await addEditPatientBasicDetails(formData);
-      console.log(response);
+      if (response) {
+        toast({
+          title: "Patient Particulars Saved Successfully",
+          variant: "default",
+        });
+        setPatientId(response.patient._id);
+        setActiveTab("caseHistory");
+        advancedForm.setValue("id", response.patient._id);
+      }
     } catch (error) {
-      console.log(error);
+      toast({
+        title: "Error Saving Patient Particulars",
+        variant: "destructive",
+      });
+      console.error(error);
     }
-
-    setIsEditMode(true);
-    setActiveTab("advanced");
-    // Handle basic details submission
   };
 
-  const onSubmitAdvanced = (
+  const onSubmitCaseHistory = async (
     formData: z.infer<typeof AdvancedDetailsSchema>
   ) => {
-    console.log("Advanced Details:", formData);
-    // Handle advanced details submission
-    // Here, you would typically send this data to your API
-    // The API should store the vital signs as a new entry in an array of historical readings
-    // Example structure in the database:
-    // vitalSignsHistory: [
-    //   { temperature: 36.5, bloodPressure: "120/80", pulseRate: 72, spO2: 98, respiratoryRate: 16, date: "2023-04-20T10:30:00Z" },
-    //   { temperature: 36.7, bloodPressure: "118/78", pulseRate: 70, spO2: 99, respiratoryRate: 15, date: "2023-04-21T11:15:00Z" },
-    // ]
+    try {
+      const response = await addEditPatientAdvancedDetails(formData);
+      if (response) {
+        toast({
+          title: "Case History Saved Successfully",
+          variant: "default",
+        });
+        setActiveTab("ongoingTreatment");
+      }
+    } catch (error) {
+      toast({
+        title: "Error Saving Case History",
+        variant: "destructive",
+      });
+      console.error(error);
+    }
   };
+
+  const onSubmitOngoingTreatment = async (
+    formData: z.infer<typeof OngoingTreatmentSchema>
+  ) => {
+    try {
+      // const response = await addEditPatientOngoingTreatment({ ...formData, id: patientId });
+      // if (response?.statusText === "OK") {
+      //   toast({
+      //     title: "Ongoing Treatment Saved Successfully",
+      //     variant: "default",
+      //   });
+      //   router.back();
+      // }
+      console.log(formData);
+    } catch (error) {
+      toast({
+        title: "Error Saving Ongoing Treatment",
+        variant: "destructive",
+      });
+      console.error(error);
+    }
+  };
+
   console.log("data from add and edit component", data);
 
   return (
@@ -305,21 +533,29 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex justify-end mb-4">
           <TabsList>
-            <TabsTrigger value="basic">Basic Details</TabsTrigger>
-            <TabsTrigger value="advanced" disabled={!isEditMode}>
-              Advanced Details
+            <TabsTrigger value="patientParticulars">
+              Patient Particulars
+            </TabsTrigger>
+            <TabsTrigger value="caseHistory" disabled={!patientId}>
+              Case History
+            </TabsTrigger>
+            <TabsTrigger value="ongoingTreatment" disabled={!patientId}>
+              Ongoing Treatment
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <TabsContent value="basic">
-          <Form {...basicForm}>
+        <TabsContent value="patientParticulars">
+          <Form {...patientParticularsForm}>
             <form
-              onSubmit={basicForm.handleSubmit(onSubmitBasic)}
+              onSubmit={patientParticularsForm.handleSubmit(
+                onSubmitPatientParticulars
+              )}
               className="space-y-8"
             >
               <PersonalDetailsComponent />
               <AddressComponent />
+              <SymptomsDiseases />
               <div className="flex gap-3 justify-end mt-5">
                 <Button
                   type="button"
@@ -334,24 +570,49 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
           </Form>
         </TabsContent>
 
-        <TabsContent value="advanced">
+        <TabsContent value="caseHistory">
           <Form {...advancedForm}>
             <form
-              onSubmit={advancedForm.handleSubmit(onSubmitAdvanced)}
+              onSubmit={advancedForm.handleSubmit(onSubmitCaseHistory)}
               className="space-y-8"
             >
+              <ChiefComplaintComponent />
               <GeneralPhysicalExaminationComponent />
               <LocalExaminationComponent />
               <SystemicExaminationComponent />
               <OtherSystemicExaminationComponent />
-              <TreatmentsComponent />
               <MedicalHistoryComponent />
+              <InvestigationsComponent />
+              <TreatmentsComponent />
               <DiagnosisComponent />
               <div className="flex gap-3 justify-end mt-5">
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() => setActiveTab("basic")}
+                  onClick={() => setActiveTab("patientParticulars")}
+                >
+                  Back
+                </Button>
+                <Button type="submit">Save & Continue</Button>
+              </div>
+            </form>
+          </Form>
+        </TabsContent>
+
+        <TabsContent value="ongoingTreatment">
+          <Form {...ongoingTreatmentForm}>
+            <form
+              onSubmit={ongoingTreatmentForm.handleSubmit(
+                onSubmitOngoingTreatment
+              )}
+              className="space-y-8"
+            >
+              <OngoingTreatmentComponent />
+              <div className="flex gap-3 justify-end mt-5">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setActiveTab("caseHistory")}
                 >
                   Back
                 </Button>

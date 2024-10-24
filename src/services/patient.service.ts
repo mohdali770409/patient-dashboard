@@ -13,6 +13,18 @@ export const addEditPatientBasicDetails = async (data: any) => {
   }
 };
 
+export const addEditPatientAdvancedDetails = async (data: any) => {
+  console.log("Environment Domain:", process.env.NEXT_PUBLIC_DOMAIN);
+  const url = `${API.domain}${API.endPoints.addEditPatientAdvancedDetails}`;
+  console.log(url);
+  try {
+    const response = await axios.post(url, data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getPatientsData = async () => {
   console.log("Environment Domain:", process.env.NEXT_PUBLIC_DOMAIN);
   const url = `${API.domain}${API.endPoints.getAllPatients}`;
