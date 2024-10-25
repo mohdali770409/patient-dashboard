@@ -8,31 +8,39 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Eye } from "lucide-react"; // Example icon
 
 const LocalExaminationComponent: React.FC = () => {
   const { control } = useFormContext();
 
   return (
-    <div className="bg-gray-50 shadow-md px-6 pt-5 pb-10 rounded-md">
-      <h1 className="font-semibold mb-3 text-gray-500">Local Examination</h1>
-      
-      <FormField
-        control={control}
-        name="localExamination.others"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Others</FormLabel>
-            <FormControl>
-              <Textarea 
-                placeholder="Enter any additional local examination details here" 
-                {...field} 
-                className="min-h-[200px]"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+    <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+      <div className="bg-gradient-to-r from-indigo-500 to-blue-600 px-6 py-4">
+        <h1 className="font-semibold text-white text-lg flex items-center gap-2">
+          <Eye className="h-5 w-5" />
+          Local Examination
+        </h1>
+      </div>
+
+      <div className="p-6">
+        <FormField
+          control={control}
+          name="localExamination.others"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Others</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Enter any additional local examination details here"
+                  {...field}
+                  className="min-h-[150px] border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 };

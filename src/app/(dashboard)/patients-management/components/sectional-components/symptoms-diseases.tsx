@@ -8,6 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { MultiSelect } from "@/components/multi-select";
+import { Stethoscope } from "lucide-react";
 
 const symptomsAndDiseaseOptions = [
   // Symptoms
@@ -45,30 +46,45 @@ const symptomsAndDiseaseOptions = [
   { label: "Epilepsy", value: "epilepsy" },
 ];
 
-const SymptomsDiseases = () => {
+const SymptomsDiseases: React.FC = () => {
   const { control } = useFormContext();
 
   return (
-    <div>
-      <FormField
-        control={control}
-        name="symptomsAndDiseases"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Symptoms and Diseases</FormLabel>
-            <FormControl>
-              <MultiSelect
-                options={symptomsAndDiseaseOptions}
-                placeholder="Select symptoms and diseases"
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                maxCount={5}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+    <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+      <div className="bg-gradient-to-r from-red-500 to-orange-600 px-6 py-4">
+        <h1 className="font-semibold text-white text-lg flex items-center gap-2">
+          <Stethoscope className="h-5 w-5" />
+          Symptoms and Diseases
+        </h1>
+      </div>
+
+      <div className="p-6">
+        <FormField
+          control={control}
+          name="symptomsAndDiseases"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-red-50">
+                  <Stethoscope className="h-4 w-4 text-red-500" />
+                </div>
+                Select Symptoms and Diseases
+              </FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={symptomsAndDiseaseOptions}
+                  placeholder="Select symptoms and diseases"
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  maxCount={5}
+                  className="focus:ring-2 focus:ring-red-500"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 };

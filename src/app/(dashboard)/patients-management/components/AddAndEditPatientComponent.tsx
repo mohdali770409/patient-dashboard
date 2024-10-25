@@ -25,32 +25,8 @@ import OngoingTreatmentComponent from "./sectional-components/ongoing-treatment"
 import SymptomsDiseases from "./sectional-components/symptoms-diseases";
 import ChiefComplaintComponent from "./sectional-components/chief-complaint";
 import InvestigationsComponent from "./sectional-components/investigations";
-export const BasicDetailsSchema = z.object({
-  id: z.string().optional(),
-  registrationNumber: z
-    .string()
-    .min(1, { message: "Registration Number is required." }),
-  firstName: z
-    .string()
-    .min(2, { message: "First Name must be at least 2 characters." }),
-  lastName: z.string().optional(),
-  phone: z.string().min(10, { message: "Phone Number must be of 10 digits." }),
-  email: z
-    .string()
-    .email({ message: "Please enter a valid email address or leave it empty" })
-    .or(z.literal(""))
-    .optional(),
-  religion: z.string().min(1, { message: "Religion is required." }),
-  age: z.string(),
-  gender: z.string().optional(),
-  street: z.string(),
-  locality: z.string(),
-  city: z.string(),
-  state: z.string(),
-  pinCode: z.string(),
-});
 
-export const AdvancedDetailsSchema = z.object({
+export const CaseHistorySchema = z.object({
   id: z.string().optional(),
   historyOfMajorIllness: z.string().optional(),
   majorDiseases: z.array(z.string()).optional(),
@@ -146,59 +122,61 @@ export const AdvancedDetailsSchema = z.object({
     familyHistory: z.string().optional(),
     historyOfMajorIllness: z.string().optional(),
   }),
-  investigations: z.object({
-    laboratoryAnalysis: z.object({
-      bodyFluid: z.object({
-        bloodAnalysis: z.string().optional(),
-        csf: z.string().optional(),
-        asciticFluid: z.string().optional(),
-        pleuralFluid: z.string().optional(),
-        amnioticFluid: z.string().optional(),
-        synvonialFluid: z.string().optional(),
-        mucus: z.string().optional(),
+  investigations: z
+    .object({
+      laboratoryAnalysis: z.object({
+        bodyFluid: z.object({
+          bloodAnalysis: z.string().optional(),
+          csf: z.string().optional(),
+          asciticFluid: z.string().optional(),
+          pleuralFluid: z.string().optional(),
+          amnioticFluid: z.string().optional(),
+          synvonialFluid: z.string().optional(),
+          mucus: z.string().optional(),
+          others: z.string().optional(),
+        }),
+        urineAnalysis: z.string().optional(),
+        stoolAnalysis: z.string().optional(),
         others: z.string().optional(),
       }),
-      urineAnalysis: z.string().optional(),
-      stoolAnalysis: z.string().optional(),
-      others: z.string().optional(),
-    }),
-    imaging: z.object({
-      xray: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
+      imaging: z.object({
+        xray: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
+        ct: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
+        cect: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
+        hrct: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
+        mri: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
+        hsg: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
+        usg: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
+        others: z.object({
+          report: z.string().optional(),
+          images: z.array(z.string()).optional(),
+        }),
       }),
-      ct: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
-      }),
-      cect: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
-      }),
-      hrct: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
-      }),
-      mri: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
-      }),
-      hsg: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
-      }),
-      usg: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
-      }),
-      others: z.object({
-        report: z.string().optional(),
-        images: z.array(z.string()).optional(),
-      }),
-    }),
-    biopsy: z.string().optional(),
-    markers: z.string().optional(),
-  }),
+      biopsy: z.string().optional(),
+      markers: z.string().optional(),
+    })
+    .optional(),
 });
 
 export const OngoingTreatmentSchema = z.object({
@@ -243,32 +221,12 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
   data,
 }) => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("caseHistory");
+  const [activeTab, setActiveTab] = useState("ongoingTreatment");
   const [patientId, setPatientId] = useState(data?._id || "");
   const { toast } = useToast();
 
-  const basicForm = useForm<z.infer<typeof BasicDetailsSchema>>({
-    resolver: zodResolver(BasicDetailsSchema),
-    defaultValues: {
-      id: data?._id || "",
-      registrationNumber: data?.registrationNumber || "",
-      firstName: data?.firstName || "",
-      lastName: data?.lastName || "",
-      phone: data?.phone || "",
-      email: data?.email || "",
-      religion: data?.religion || "",
-      age: data?.age || "",
-      gender: data?.gender || "",
-      street: data?.street || "",
-      locality: data?.locality || "",
-      city: data?.city || "",
-      state: data?.state || "",
-      pinCode: data?.pinCode || "",
-    },
-  });
-
-  const advancedForm = useForm<z.infer<typeof AdvancedDetailsSchema>>({
-    resolver: zodResolver(AdvancedDetailsSchema),
+  const caseHistoryForm = useForm<z.infer<typeof CaseHistorySchema>>({
+    resolver: zodResolver(CaseHistorySchema),
     defaultValues: {
       id: data?._id || "",
       historyOfMajorIllness: data?.historyOfMajorIllness || "",
@@ -280,98 +238,185 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         temperature:
           data?.vitalSigns[data?.vitalSigns?.length - 1]?.temperature ||
           undefined,
-        bloodPressure: data?.vitalSigns?.bloodPressure || "",
-        pulseRate: data?.vitalSigns?.pulseRate || undefined,
-        spO2: data?.vitalSigns?.spO2 || undefined,
-        respiratoryRate: data?.vitalSigns?.respiratoryRate || undefined,
+        bloodPressure:
+          data?.vitalSigns[data?.vitalSigns?.length - 1]?.bloodPressure || "",
+        pulseRate:
+          data?.vitalSigns[data?.vitalSigns?.length - 1]?.pulseRate ||
+          undefined,
+        spO2: data?.vitalSigns[data?.vitalSigns?.length - 1]?.spO2 || undefined,
+        respiratoryRate:
+          data?.vitalSigns[data?.vitalSigns?.length - 1]?.respiratoryRate ||
+          undefined,
         date: new Date(),
       },
       pilccod: {
         pallor: {
-          value: data?.pilccod?.pallor?.value || "negative",
-          description: data?.pilccod?.pallor?.description || "",
+          value:
+            data?.pilccod[data?.pilccod?.length - 1]?.pallor?.value ||
+            "negative",
+          description:
+            data?.pilccod[data?.pilccod?.length - 1]?.pallor?.description || "",
         },
         icterus: {
-          value: data?.pilccod?.icterus?.value || "negative",
-          description: data?.pilccod?.icterus?.description || "",
+          value:
+            data?.pilccod[data?.pilccod?.length - 1]?.icterus?.value ||
+            "negative",
+          description:
+            data?.pilccod[data?.pilccod?.length - 1]?.icterus?.description ||
+            "",
         },
         lymphadenopathy: {
-          value: data?.pilccod?.lymphadenopathy?.value || "negative",
-          description: data?.pilccod?.lymphadenopathy?.description || "",
+          value:
+            data?.pilccod[data?.pilccod?.length - 1]?.lymphadenopathy?.value ||
+            "negative",
+          description:
+            data?.pilccod[data?.pilccod?.length - 1]?.lymphadenopathy
+              ?.description || "",
         },
         clubbing: {
-          value: data?.pilccod?.clubbing?.value || "negative",
-          description: data?.pilccod?.clubbing?.description || "",
+          value:
+            data?.pilccod[data?.pilccod?.length - 1]?.clubbing?.value ||
+            "negative",
+          description:
+            data?.pilccod[data?.pilccod?.length - 1]?.clubbing?.description ||
+            "",
         },
         cyanosis: {
-          value: data?.pilccod?.cyanosis?.value || "negative",
-          description: data?.pilccod?.cyanosis?.description || "",
+          value:
+            data?.pilccod[data?.pilccod?.length - 1]?.cyanosis?.value ||
+            "negative",
+          description:
+            data?.pilccod[data?.pilccod?.length - 1]?.cyanosis?.description ||
+            "",
         },
         oedema: {
-          value: data?.pilccod?.oedema?.value || "negative",
-          description: data?.pilccod?.oedema?.description || "",
+          value:
+            data?.pilccod[data?.pilccod?.length - 1]?.oedema?.value ||
+            "negative",
+          description:
+            data?.pilccod[data?.pilccod?.length - 1]?.oedema?.description || "",
         },
         dehydration: {
-          value: data?.pilccod?.dehydration?.value || "negative",
-          description: data?.pilccod?.dehydration?.description || "",
+          value:
+            data?.pilccod[data?.pilccod?.length - 1]?.dehydration?.value ||
+            "negative",
+          description:
+            data?.pilccod[data?.pilccod?.length - 1]?.dehydration
+              ?.description || "",
         },
       },
       additionalHistory: {
-        feverHistory: data?.additionalHistory?.feverHistory || "",
-        tuberculosisHistory: data?.additionalHistory?.tuberculosisHistory || "",
+        feverHistory:
+          data?.additionalHistory[data?.additionalHistory?.length - 1]
+            ?.feverHistory || "",
+        tuberculosisHistory:
+          data?.additionalHistory[data?.additionalHistory?.length - 1]
+            ?.tuberculosisHistory || "",
       },
       localExamination: {
-        others: data?.localExamination?.others || "",
+        others:
+          data?.localExamination[data?.localExamination?.length - 1]?.others ||
+          "",
       },
       systemicExamination: {
-        inspection: data?.systemicExamination?.inspection || "",
-        palpation: data?.systemicExamination?.palpation || "",
-        percussion: data?.systemicExamination?.percussion || "",
-        auscultation: data?.systemicExamination?.auscultation || "",
+        inspection:
+          data?.systemicExamination[data?.systemicExamination?.length - 1]
+            ?.inspection || "",
+        palpation:
+          data?.systemicExamination[data?.systemicExamination?.length - 1]
+            ?.palpation || "",
+        percussion:
+          data?.systemicExamination[data?.systemicExamination?.length - 1]
+            ?.percussion || "",
+        auscultation:
+          data?.systemicExamination[data?.systemicExamination?.length - 1]
+            ?.auscultation || "",
       },
       otherSystemicExamination: {
         cns: {
-          inspection: data?.otherSystemicExamination?.cns?.inspection || "",
-          palpation: data?.otherSystemicExamination?.cns?.palpation || "",
-          percussion: data?.otherSystemicExamination?.cns?.percussion || "",
-          auscultation: data?.otherSystemicExamination?.cns?.auscultation || "",
+          inspection:
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cns?.inspection || "",
+          palpation:
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cns?.palpation || "",
+          percussion:
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cns?.percussion || "",
+          auscultation:
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cns?.auscultation || "",
         },
         renal: {
-          inspection: data?.otherSystemicExamination?.renal?.inspection || "",
-          palpation: data?.otherSystemicExamination?.renal?.palpation || "",
-          percussion: data?.otherSystemicExamination?.renal?.percussion || "",
+          inspection:
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.renal?.inspection || "",
+          palpation:
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.renal?.palpation || "",
+          percussion:
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.renal?.percussion || "",
           auscultation:
             data?.otherSystemicExamination?.renal?.auscultation || "",
         },
         gastrointestinal: {
           inspection:
-            data?.otherSystemicExamination?.gastrointestinal?.inspection || "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.gastrointestinal?.inspection || "",
           palpation:
-            data?.otherSystemicExamination?.gastrointestinal?.palpation || "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.gastrointestinal?.palpation || "",
           percussion:
-            data?.otherSystemicExamination?.gastrointestinal?.percussion || "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.gastrointestinal?.percussion || "",
           auscultation:
-            data?.otherSystemicExamination?.gastrointestinal?.auscultation ||
-            "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.gastrointestinal?.auscultation || "",
         },
         cardiovascular: {
           inspection:
-            data?.otherSystemicExamination?.cardiovascular?.inspection || "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cardiovascular?.inspection || "",
           palpation:
-            data?.otherSystemicExamination?.cardiovascular?.palpation || "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cardiovascular?.palpation || "",
           percussion:
-            data?.otherSystemicExamination?.cardiovascular?.percussion || "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cardiovascular?.percussion || "",
           auscultation:
-            data?.otherSystemicExamination?.cardiovascular?.auscultation || "",
+            data?.otherSystemicExamination[
+              data?.otherSystemicExamination?.length - 1
+            ]?.cardiovascular?.auscultation || "",
         },
       },
       treatmentsAtPreviousHospital: {
         treatmentReceivedAtTimeOfAdmission:
-          data?.treatmentsAtPreviousHospital
-            ?.treatmentReceivedAtTimeOfAdmission || "",
+          data?.treatmentReceivedAtPreviousHospital
+            ?.treatmentReceivedAtTimeOfAdmission?.[
+            data?.treatmentReceivedAtPreviousHospital
+              ?.treatmentReceivedAtTimeOfAdmission?.length - 1
+          ]?.treatment || "",
         dischargeWithFollowingTreatment:
-          data?.treatmentsAtPreviousHospital.dischargeWithFollowingTreatment ||
-          "",
+          data?.treatmentReceivedAtPreviousHospital
+            ?.dischargeWithFollowingTreatment[
+            data?.treatmentReceivedAtPreviousHospital
+              ?.dischargeWithFollowingTreatment?.length - 1
+          ]?.treatment || "",
       },
       medicalHistory: {
         historyOfPresentIllness:
@@ -386,45 +431,111 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         laboratoryAnalysis: {
           bodyFluid: {
             bloodAnalysis:
-              data?.investigations?.laboratoryAnalysis?.bodyFluid
-                ?.bloodAnalysis || "",
-            csf: data?.investigations?.laboratoryAnalysis?.bodyFluid?.csf || "",
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.bloodAnalysis || "",
+            csf:
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.csf || "",
             asciticFluid:
-              data?.investigations?.laboratoryAnalysis?.bodyFluid
-                ?.asciticFluid || "",
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.asciticFluid || "",
             pleuralFluid:
-              data?.investigations?.laboratoryAnalysis?.bodyFluid
-                ?.pleuralFluid || "",
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.pleuralFluid || "",
             amnioticFluid:
-              data?.investigations?.laboratoryAnalysis?.bodyFluid
-                ?.amnioticFluid || "",
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.amnioticFluid || "",
             synvonialFluid:
-              data?.investigations?.laboratoryAnalysis?.bodyFluid
-                ?.synvonialFluid || "",
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.synvonialFluid || "",
             mucus:
-              data?.investigations?.laboratoryAnalysis?.bodyFluid?.mucus || "",
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.mucus || "",
             others:
-              data?.investigations?.laboratoryAnalysis?.bodyFluid?.others || "",
+              data?.investigations?.[data?.investigations?.length - 1]
+                ?.laboratoryAnalysis?.bodyFluid?.others || "",
           },
           urineAnalysis:
-            data?.investigations?.laboratoryAnalysis?.urineAnalysis || "",
+            data?.investigations?.[data?.investigations?.length - 1]
+              ?.laboratoryAnalysis?.urineAnalysis || "",
           stoolAnalysis:
-            data?.investigations?.laboratoryAnalysis?.stoolAnalysis || "",
-          others: data?.investigations?.laboratoryAnalysis?.others || "",
+            data?.investigations?.[data?.investigations?.length - 1]
+              ?.laboratoryAnalysis?.stoolAnalysis || "",
+          others:
+            data?.investigations?.[data?.investigations?.length - 1]
+              ?.laboratoryAnalysis?.others || "",
         },
         imaging: {
-          xray: { report: "", images: [] },
-          ct: { report: "", images: [] },
-          cect: { report: "", images: [] },
-          hrct: { report: "", images: [] },
-          mri: { report: "", images: [] },
-          hsg: { report: "", images: [] },
-          usg: { report: "", images: [] },
-          others: { report: "", images: [] },
+          xray: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.xray?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.xray?.images || [],
+          },
+          ct: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.ct?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.ct?.images || [],
+          },
+          cect: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.cect?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.cect?.images || [],
+          },
+          hrct: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.hrct?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.hrct?.images || [],
+          },
+          mri: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.mri?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.mri?.images || [],
+          },
+          hsg: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.hsg?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.hsg?.images || [],
+          },
+          usg: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.usg?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.usg?.images || [],
+          },
+          others: {
+            report:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.others?.report || "",
+            images:
+              data?.investigations[data?.investigations?.length - 1]?.imaging
+                ?.others?.images || [],
+          },
         },
-        biopsy: data?.investigations?.biopsy || "",
-        markers: data?.investigations?.markers || "",
+        biopsy: data?.investigations[data?.investigations?.length - 1]?.biopsy || "",
+        markers: data?.investigations[data?.investigations?.length - 1]?.markers || "",
       },
+      chiefComplaint:
+        data?.chiefComplaint[data?.chiefComplaint?.length - 1].complaint || "",
     },
   });
 
@@ -461,7 +572,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
   });
 
   const onSubmitPatientParticulars = async (
-    formData: z.infer<typeof BasicDetailsSchema>
+    formData: z.infer<typeof PatientParticularsSchema>
   ) => {
     try {
       const response = await addEditPatientBasicDetails(formData);
@@ -472,7 +583,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         });
         setPatientId(response.patient._id);
         setActiveTab("caseHistory");
-        advancedForm.setValue("id", response.patient._id);
+        caseHistoryForm.setValue("id", response.patient._id);
       }
     } catch (error) {
       toast({
@@ -484,7 +595,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
   };
 
   const onSubmitCaseHistory = async (
-    formData: z.infer<typeof AdvancedDetailsSchema>
+    formData: z.infer<typeof CaseHistorySchema>
   ) => {
     try {
       const response = await addEditPatientAdvancedDetails(formData);
@@ -571,9 +682,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         </TabsContent>
 
         <TabsContent value="caseHistory">
-          <Form {...advancedForm}>
+          <Form {...caseHistoryForm}>
             <form
-              onSubmit={advancedForm.handleSubmit(onSubmitCaseHistory)}
+              onSubmit={caseHistoryForm.handleSubmit(onSubmitCaseHistory)}
               className="space-y-8"
             >
               <ChiefComplaintComponent />

@@ -8,16 +8,22 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { GiMedicines as Medicine} from "react-icons/gi";
 
 const TreatmentsComponent: React.FC = () => {
   const { control } = useFormContext();
 
   return (
-    <div className="bg-gray-50 shadow-md px-6 pt-5 pb-10 rounded-md">
-      <h1 className="font-semibold mb-3 text-gray-500">Treatments</h1>
-      
-      <div className="mb-6">
-        <h2 className="font-medium text-gray-400 mb-4">Treatment Received at Previous Hospital</h2>
+    <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+      <div className="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4">
+        <h1 className="font-semibold text-white text-lg flex items-center gap-2">
+          <Medicine className="h-5 w-5" />
+          Treatments
+        </h1>
+      </div>
+
+      <div className="p-6 space-y-6">
+        <h2 className="font-medium text-gray-700 mb-4">Treatment Received at Previous Hospital</h2>
         <div className="space-y-4">
           <FormField
             control={control}
@@ -26,10 +32,10 @@ const TreatmentsComponent: React.FC = () => {
               <FormItem>
                 <FormLabel>Treatment Received at Time of Admission</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Enter treatment received at time of admission" 
-                    {...field} 
-                    className="min-h-[150px]"
+                  <Textarea
+                    placeholder="Enter treatment received at time of admission"
+                    {...field}
+                    className="min-h-[150px] border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-green-500"
                   />
                 </FormControl>
                 <FormMessage />
@@ -44,10 +50,10 @@ const TreatmentsComponent: React.FC = () => {
               <FormItem>
                 <FormLabel>Discharge with Following Treatment</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Enter discharge treatment details" 
-                    {...field} 
-                    className="min-h-[150px]"
+                  <Textarea
+                    placeholder="Enter discharge treatment details"
+                    {...field}
+                    className="min-h-[150px] border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-green-500"
                   />
                 </FormControl>
                 <FormMessage />
@@ -56,7 +62,6 @@ const TreatmentsComponent: React.FC = () => {
           />
         </div>
       </div>
-
     </div>
   );
 };
