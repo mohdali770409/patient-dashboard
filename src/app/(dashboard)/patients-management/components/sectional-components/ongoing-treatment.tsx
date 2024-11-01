@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   FormField,
@@ -15,8 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClipboardList, ActivitySquare, Stethoscope } from "lucide-react";
+import { ClipboardList, ActivitySquare, Stethoscope, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const STATUS_OPTIONS = [
   { value: "cured", label: "Cured", color: "text-green-500" },
@@ -25,8 +26,41 @@ const STATUS_OPTIONS = [
   { value: "relapser", label: "Relapser", color: "text-orange-500" }
 ];
 
-const OngoingTreatmentComponent = () => {
-  const { control } = useFormContext();
+interface Treatment {
+  treatment: string;
+  date: string;
+  _id: string;
+}
+
+interface OngoingTreatmentComponentProps {
+  existingTreatments?: Treatment[];
+}
+
+const OngoingTreatmentComponent: React.FC<OngoingTreatmentComponentProps> = ({
+  existingTreatments = []
+}) => {
+  const { control, setValue } = useFormContext();
+
+  // Format dates for display
+  const treatmentDateOptions = useMemo(() => {
+    return existingTreatments.map(treatment => ({
+      value: treatment.date,
+      label: new Date(treatment.date).toLocaleDateString(),
+      treatment: treatment.treatment
+    }));
+  }, [existingTreatments]);
+
+  // Handle date selection
+  const handleTreatmentDateSelect = (selectedDate: string) => {
+    const selectedTreatment = existingTreatments.find(
+      t => t.date === selectedDate
+    );
+    
+    if (selectedTreatment) {
+      setValue("ourPlanOfAction.treatment", selectedTreatment.treatment);
+      setValue("ourPlanOfAction.date", new Date(selectedTreatment.date));
+    }
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
@@ -39,38 +73,81 @@ const OngoingTreatmentComponent = () => {
 
       <div className="p-6">
         <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 transition-all duration-200 hover:shadow-md">
-            <FormField
-              control={control}
-              name="ourPlanOfAction"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2 mb-3">
-                    <div className="p-2 rounded-lg bg-cyan-50">
-                      <ClipboardList className="h-4 w-4 text-cyan-500" />
-                    </div>
-                    <span className="font-medium text-gray-700">Our Plan of Action</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter the plan of action..."
-                      className={cn(
-                        "min-h-[150px]",
-                        "border border-gray-300",
-                        "focus:ring-2",
-                        "focus:ring-cyan-500",
-                        "transition-all duration-200"
-                      )}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+            <h2 className="font-medium text-gray-700 flex items-center gap-2 mb-4">
+              <ClipboardList className="h-5 w-5 text-cyan-500" />
+              Our Plan of Action
+            </h2>
+
+            <div className="space-y-4">
+              {existingTreatments && existingTreatments.length > 0 && (
+                <div>
+                  <FormLabel>View Previous Treatment Plans</FormLabel>
+                  <Select onValueChange={handleTreatmentDateSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select date to view treatment plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {treatmentDateOptions.map((option) => (
+                        <SelectItem 
+                          key={option.value} 
+                          value={option.value}
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
-            />
+
+              <FormField
+                control={control}
+                name="ourPlanOfAction.date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Date
+                    </FormLabel>
+                    <FormControl>
+                      <DatePicker
+                        date={field.value}
+                        setDate={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name="ourPlanOfAction.treatment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Treatment Plan</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter the plan of action..."
+                        className={cn(
+                          "min-h-[150px]",
+                          "border border-gray-300",
+                          "rounded-md p-2",
+                          "focus:ring-2",
+                          "focus:ring-cyan-500"
+                        )}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 transition-all duration-200 hover:shadow-md">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
             <FormField
               control={control}
               name="status"
@@ -82,10 +159,7 @@ const OngoingTreatmentComponent = () => {
                     </div>
                     <span className="font-medium text-gray-700">Status</span>
                   </FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="focus:ring-2 focus:ring-cyan-500">
                         <SelectValue placeholder="Select status" />

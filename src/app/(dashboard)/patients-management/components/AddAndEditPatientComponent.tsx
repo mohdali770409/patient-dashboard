@@ -19,12 +19,16 @@ import TreatmentsComponent from "./sectional-components/treatments";
 import {
   addEditPatientAdvancedDetails,
   addEditPatientBasicDetails,
+  addEditPatientOngoingTreatment,
 } from "@/services/patient.service";
 import { useToast } from "@/hooks/use-toast";
 import OngoingTreatmentComponent from "./sectional-components/ongoing-treatment";
 import SymptomsDiseases from "./sectional-components/symptoms-diseases";
 import ChiefComplaintComponent from "./sectional-components/chief-complaint";
 import InvestigationsComponent from "./sectional-components/investigations";
+import ProvisionalDiagnosisComponent from "./sectional-components/provisional-diagnosis";
+import DifferentialDiagnosisComponent from "./sectional-components/differential-diagnosis";
+import FinalDiagnosisComponent from "./sectional-components/final-diagnosis";
 
 export const CaseHistorySchema = z.object({
   id: z.string().optional(),
@@ -187,8 +191,11 @@ export const CaseHistorySchema = z.object({
 
 export const OngoingTreatmentSchema = z.object({
   id: z.string().optional(),
-  ourPlanOfAction: z.string().min(1, "Plan of action is required"),
-  status: z.enum(["cured", "defaulter"]),
+  ourPlanOfAction: z.object({
+    treatment: z.string().min(1, "Plan of action is required"),
+    date: z.date().default(() => new Date()),
+  }),
+  status: z.enum(["cured", "defaulter", "improving", "relapser"]),
 });
 
 export const PatientParticularsSchema = z.object({
@@ -483,7 +490,10 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
     resolver: zodResolver(OngoingTreatmentSchema),
     defaultValues: {
       id: data?._id || "",
-      ourPlanOfAction: data?.ourPlanOfAction || "",
+      ourPlanOfAction: {
+        treatment: data?.ourPlanOfAction[data?.ourPlanOfAction?.length - 1]?.treatment || "",
+        date: data?.ourPlanOfAction[data?.ourPlanOfAction?.length - 1]?.date || new Date(),
+      },
       status: data?.status || undefined,
     },
   });
@@ -559,15 +569,18 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
     formData: z.infer<typeof OngoingTreatmentSchema>
   ) => {
     try {
-      // const response = await addEditPatientOngoingTreatment({ ...formData, id: patientId });
-      // if (response?.statusText === "OK") {
-      //   toast({
-      //     title: "Ongoing Treatment Saved Successfully",
-      //     variant: "default",
-      //   });
-      //   router.back();
-      // }
-      console.log(formData);
+      const response = await addEditPatientOngoingTreatment({ 
+        ...formData, 
+        id: patientId 
+      });
+      
+      if (response) {
+        toast({
+          title: "Ongoing Treatment Saved Successfully",
+          variant: "default",
+        });
+        router.back();
+      }
     } catch (error) {
       toast({
         title: "Error Saving Ongoing Treatment",
@@ -630,6 +643,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
               <ChiefComplaintComponent 
                 existingComplaints={data?.chiefComplaint || []} 
               />
+              <MedicalHistoryComponent />
               <GeneralPhysicalExaminationComponent 
                 existingVitalSigns={data?.vitalSigns || []}
                 existingPILCCOD={data?.pilccod || []}
@@ -643,12 +657,13 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
               <OtherSystemicExaminationComponent 
                 existingExaminations={data?.otherSystemicExamination || []}
               />
-              <MedicalHistoryComponent />
+              <ProvisionalDiagnosisComponent />
               <InvestigationsComponent 
                 existingInvestigations={data?.investigations || []}
               />
+              <DifferentialDiagnosisComponent />
+              <FinalDiagnosisComponent />
               <TreatmentsComponent />
-              <DiagnosisComponent />
               <div className="flex gap-3 justify-end mt-5">
                 <Button
                   type="button"
@@ -671,7 +686,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
               )}
               className="space-y-8"
             >
-              <OngoingTreatmentComponent />
+              <OngoingTreatmentComponent existingTreatments={data?.ourPlanOfAction || []} />
               <div className="flex gap-3 justify-end mt-5">
                 <Button
                   type="button"

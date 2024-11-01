@@ -161,7 +161,7 @@ const Patients = () => {
               >
                 {/* view button handler */}
                 <Link
-                  href={`/patients-management/patient-details/${row.original._id}`}
+                  href={`/patients-management/view-patient/${row.original._id}`}
                 >
                   <div className="flex items-center">
                     <Eye className="mr-1 h-4 inline-block" />

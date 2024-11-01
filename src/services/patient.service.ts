@@ -59,3 +59,15 @@ export const deletePatient = async (id: {id: string}) => {
     console.log(error);
   }
 };
+
+export const addEditPatientOngoingTreatment = async (data: any) => {
+  console.log("Environment Domain:", process.env.NEXT_PUBLIC_DOMAIN);
+  const url = `${API.domain}${API.endPoints.addEditPatientOngoingTreatment}`;
+  console.log(url);
+  try {
+    const response = await axios.post(url, data);
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

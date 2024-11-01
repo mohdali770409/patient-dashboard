@@ -7,6 +7,7 @@ export const API ={
         getAllPatients:"/api/v1/patients/getAllPatients",
         getPatientsDetails:"/api/v1/patients/getPatientDetailsById",
         deletePatient:"/api/v1/patients/deletePatient",
+        addEditPatientOngoingTreatment:"/api/v1/patients/addEditPatientOngoingTreatment",
     }
 
 }

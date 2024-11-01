@@ -3,4 +3,5 @@ export interface sidebarItem {
   svgUrl: string;
   route: string;
   isSelected: boolean;
+  description?: string;
 }
