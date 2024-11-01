@@ -70,6 +70,7 @@ export const CaseHistorySchema = z.object({
       value: z.enum(["positive", "negative"]),
       description: z.string().optional(),
     }),
+    date: z.date().default(() => new Date()),
   }),
   additionalHistory: z.object({
     feverHistory: z.string().optional(),
@@ -77,12 +78,14 @@ export const CaseHistorySchema = z.object({
   }),
   localExamination: z.object({
     others: z.string().optional(),
+    date: z.date().default(() => new Date()),
   }),
   systemicExamination: z.object({
     inspection: z.string().optional(),
     palpation: z.string().optional(),
     percussion: z.string().optional(),
     auscultation: z.string().optional(),
+    date: z.date().default(() => new Date()),
   }),
   otherSystemicExamination: z.object({
     cns: z.object({
@@ -109,12 +112,12 @@ export const CaseHistorySchema = z.object({
       percussion: z.string().optional(),
       auscultation: z.string().optional(),
     }),
+    date: z.date().default(() => new Date()),
   }),
   treatmentsAtPreviousHospital: z.object({
     treatmentReceivedAtTimeOfAdmission: z.string().optional(),
     dischargeWithFollowingTreatment: z.string().optional(),
   }),
-  chiefComplaint: z.string().min(1, { message: "Chief complaint is required" }),
   medicalHistory: z.object({
     historyOfPresentIllness: z.string().optional(),
     pastHistory: z.string().optional(),
@@ -122,61 +125,64 @@ export const CaseHistorySchema = z.object({
     familyHistory: z.string().optional(),
     historyOfMajorIllness: z.string().optional(),
   }),
-  investigations: z
-    .object({
-      laboratoryAnalysis: z.object({
-        bodyFluid: z.object({
-          bloodAnalysis: z.string().optional(),
-          csf: z.string().optional(),
-          asciticFluid: z.string().optional(),
-          pleuralFluid: z.string().optional(),
-          amnioticFluid: z.string().optional(),
-          synvonialFluid: z.string().optional(),
-          mucus: z.string().optional(),
-          others: z.string().optional(),
-        }),
-        urineAnalysis: z.string().optional(),
-        stoolAnalysis: z.string().optional(),
+  investigations: z.object({
+    laboratoryAnalysis: z.object({
+      bodyFluid: z.object({
+        bloodAnalysis: z.string().optional(),
+        csf: z.string().optional(),
+        asciticFluid: z.string().optional(),
+        pleuralFluid: z.string().optional(),
+        amnioticFluid: z.string().optional(),
+        synvonialFluid: z.string().optional(),
+        mucus: z.string().optional(),
         others: z.string().optional(),
       }),
-      imaging: z.object({
-        xray: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
-        ct: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
-        cect: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
-        hrct: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
-        mri: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
-        hsg: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
-        usg: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
-        others: z.object({
-          report: z.string().optional(),
-          images: z.array(z.string()).optional(),
-        }),
+      urineAnalysis: z.string().optional(),
+      stoolAnalysis: z.string().optional(),
+      others: z.string().optional(),
+    }),
+    imaging: z.object({
+      xray: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
       }),
-      biopsy: z.string().optional(),
-      markers: z.string().optional(),
-    })
-    .optional(),
+      ct: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      cect: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      hrct: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      mri: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      hsg: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      usg: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+      others: z.object({
+        report: z.string().optional(),
+        images: z.array(z.string()).optional(),
+      }),
+    }),
+    biopsy: z.string().optional(),
+    markers: z.string().optional(),
+    date: z.date().default(() => new Date()),
+  }),
+  chiefComplaint: z.object({
+    complaint: z.string().min(1, { message: "Chief complaint is required" }),
+    date: z.date().default(() => new Date()),
+  }),
 });
 
 export const OngoingTreatmentSchema = z.object({
@@ -221,7 +227,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
   data,
 }) => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("ongoingTreatment");
+  const [activeTab, setActiveTab] = useState("caseHistory");
   const [patientId, setPatientId] = useState(data?._id || "");
   const { toast } = useToast();
 
@@ -247,7 +253,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         respiratoryRate:
           data?.vitalSigns[data?.vitalSigns?.length - 1]?.respiratoryRate ||
           undefined,
-        date: new Date(),
+        date: data?.vitalSigns[data?.vitalSigns?.length - 1]?.date 
+          ? new Date(data?.vitalSigns[data?.vitalSigns?.length - 1]?.date)
+          : new Date(),
       },
       pilccod: {
         pallor: {
@@ -304,6 +312,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
             data?.pilccod[data?.pilccod?.length - 1]?.dehydration
               ?.description || "",
         },
+        date: data?.pilccod[data?.pilccod?.length - 1]?.date 
+          ? new Date(data?.pilccod[data?.pilccod?.length - 1]?.date)
+          : new Date(),
       },
       additionalHistory: {
         feverHistory:
@@ -317,6 +328,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         others:
           data?.localExamination[data?.localExamination?.length - 1]?.others ||
           "",
+        date: data?.localExamination[data?.localExamination?.length - 1]?.date 
+          ? new Date(data?.localExamination[data?.localExamination?.length - 1]?.date)
+          : new Date(),
       },
       systemicExamination: {
         inspection:
@@ -331,6 +345,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         auscultation:
           data?.systemicExamination[data?.systemicExamination?.length - 1]
             ?.auscultation || "",
+        date: data?.systemicExamination[data?.systemicExamination?.length - 1]?.date 
+          ? new Date(data?.systemicExamination[data?.systemicExamination?.length - 1]?.date)
+          : new Date(),
       },
       otherSystemicExamination: {
         cns: {
@@ -403,6 +420,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
               data?.otherSystemicExamination?.length - 1
             ]?.cardiovascular?.auscultation || "",
         },
+        date: data?.otherSystemicExamination[data?.otherSystemicExamination?.length - 1]?.date 
+          ? new Date(data?.otherSystemicExamination[data?.otherSystemicExamination?.length - 1]?.date)
+          : new Date(),
       },
       treatmentsAtPreviousHospital: {
         treatmentReceivedAtTimeOfAdmission:
@@ -428,114 +448,34 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
           data?.medicalHistory?.historyOfMajorIllness || "",
       },
       investigations: {
-        laboratoryAnalysis: {
-          bodyFluid: {
-            bloodAnalysis:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.bloodAnalysis || "",
-            csf:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.csf || "",
-            asciticFluid:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.asciticFluid || "",
-            pleuralFluid:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.pleuralFluid || "",
-            amnioticFluid:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.amnioticFluid || "",
-            synvonialFluid:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.synvonialFluid || "",
-            mucus:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.mucus || "",
-            others:
-              data?.investigations?.[data?.investigations?.length - 1]
-                ?.laboratoryAnalysis?.bodyFluid?.others || "",
-          },
-          urineAnalysis:
-            data?.investigations?.[data?.investigations?.length - 1]
-              ?.laboratoryAnalysis?.urineAnalysis || "",
-          stoolAnalysis:
-            data?.investigations?.[data?.investigations?.length - 1]
-              ?.laboratoryAnalysis?.stoolAnalysis || "",
-          others:
-            data?.investigations?.[data?.investigations?.length - 1]
-              ?.laboratoryAnalysis?.others || "",
+        laboratoryAnalysis: data?.investigations[data?.investigations?.length - 1]?.laboratoryAnalysis || {
+          bodyFluid: {},
+          urineAnalysis: "",
+          stoolAnalysis: "",
+          others: "",
         },
-        imaging: {
-          xray: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.xray?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.xray?.images || [],
-          },
-          ct: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.ct?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.ct?.images || [],
-          },
-          cect: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.cect?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.cect?.images || [],
-          },
-          hrct: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.hrct?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.hrct?.images || [],
-          },
-          mri: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.mri?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.mri?.images || [],
-          },
-          hsg: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.hsg?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.hsg?.images || [],
-          },
-          usg: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.usg?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.usg?.images || [],
-          },
-          others: {
-            report:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.others?.report || "",
-            images:
-              data?.investigations[data?.investigations?.length - 1]?.imaging
-                ?.others?.images || [],
-          },
+        imaging: data?.investigations[data?.investigations?.length - 1]?.imaging || {
+          xray: { report: "", images: [] },
+          ct: { report: "", images: [] },
+          cect: { report: "", images: [] },
+          hrct: { report: "", images: [] },
+          mri: { report: "", images: [] },
+          hsg: { report: "", images: [] },
+          usg: { report: "", images: [] },
+          others: { report: "", images: [] },
         },
         biopsy: data?.investigations[data?.investigations?.length - 1]?.biopsy || "",
         markers: data?.investigations[data?.investigations?.length - 1]?.markers || "",
+        date: data?.investigations[data?.investigations?.length - 1]?.date 
+          ? new Date(data?.investigations[data?.investigations?.length - 1]?.date)
+          : new Date(),
       },
-      chiefComplaint:
-        data?.chiefComplaint[data?.chiefComplaint?.length - 1].complaint || "",
+      chiefComplaint: {
+        complaint: data?.chiefComplaint[data?.chiefComplaint?.length - 1]?.complaint || "",
+        date: data?.chiefComplaint[data?.chiefComplaint?.length - 1]?.date 
+          ? new Date(data?.chiefComplaint[data?.chiefComplaint?.length - 1]?.date)
+          : new Date(),
+      },
     },
   });
 
@@ -687,13 +627,26 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
               onSubmit={caseHistoryForm.handleSubmit(onSubmitCaseHistory)}
               className="space-y-8"
             >
-              <ChiefComplaintComponent />
-              <GeneralPhysicalExaminationComponent />
-              <LocalExaminationComponent />
-              <SystemicExaminationComponent />
-              <OtherSystemicExaminationComponent />
+              <ChiefComplaintComponent 
+                existingComplaints={data?.chiefComplaint || []} 
+              />
+              <GeneralPhysicalExaminationComponent 
+                existingVitalSigns={data?.vitalSigns || []}
+                existingPILCCOD={data?.pilccod || []}
+              />
+              <LocalExaminationComponent 
+                existingExaminations={data?.localExamination || []}
+              />
+              <SystemicExaminationComponent 
+                existingExaminations={data?.systemicExamination || []}
+              />
+              <OtherSystemicExaminationComponent 
+                existingExaminations={data?.otherSystemicExamination || []}
+              />
               <MedicalHistoryComponent />
-              <InvestigationsComponent />
+              <InvestigationsComponent 
+                existingInvestigations={data?.investigations || []}
+              />
               <TreatmentsComponent />
               <DiagnosisComponent />
               <div className="flex gap-3 justify-end mt-5">

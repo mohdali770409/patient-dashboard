@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import LaboratoryAnalysisComponent from "./laboratory-analysis";
 import ImagingComponent from "./imaging";
 import { useFormContext } from "react-hook-form";
@@ -16,13 +16,78 @@ import {
   Microscope, 
   Target,
   ChevronDown,
-  ChevronUp 
+  ChevronUp,
+  Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const InvestigationsComponent = () => {
-  const { control } = useFormContext();
+interface Investigation {
+  laboratoryAnalysis: {
+    bodyFluid: {
+      bloodAnalysis: string;
+      csf: string;
+      asciticFluid: string;
+      pleuralFluid: string;
+      amnioticFluid: string;
+      synvonialFluid: string;
+      mucus: string;
+      others: string;
+    };
+    urineAnalysis: string;
+    stoolAnalysis: string;
+    others: string;
+  };
+  imaging: {
+    xray: { report: string; images: string[] };
+    ct: { report: string; images: string[] };
+    cect: { report: string; images: string[] };
+    hrct: { report: string; images: string[] };
+    mri: { report: string; images: string[] };
+    hsg: { report: string; images: string[] };
+    usg: { report: string; images: string[] };
+    others: { report: string; images: string[] };
+  };
+  biopsy: string;
+  markers: string;
+  date: string;
+  _id: string;
+}
+
+interface InvestigationsComponentProps {
+  existingInvestigations?: Investigation[];
+}
+
+const InvestigationsComponent: React.FC<InvestigationsComponentProps> = ({
+  existingInvestigations = []
+}) => {
+  const { control, setValue } = useFormContext();
   const [expandedSection, setExpandedSection] = useState<string>("laboratory");
+
+  // Format dates for display
+  const dateOptions = useMemo(() => {
+    return existingInvestigations.map(investigation => ({
+      value: investigation.date,
+      label: new Date(investigation.date).toLocaleDateString(),
+      data: investigation
+    }));
+  }, [existingInvestigations]);
+
+  // Handle date selection
+  const handleDateSelect = (selectedDate: string) => {
+    const selectedInvestigation = existingInvestigations.find(
+      investigation => investigation.date === selectedDate
+    );
+    
+    if (selectedInvestigation) {
+      setValue("investigations.date", new Date(selectedInvestigation.date));
+      setValue("investigations.laboratoryAnalysis", selectedInvestigation.laboratoryAnalysis);
+      setValue("investigations.imaging", selectedInvestigation.imaging);
+      setValue("investigations.biopsy", selectedInvestigation.biopsy);
+      setValue("investigations.markers", selectedInvestigation.markers);
+    }
+  };
 
   const sections = [
     {
@@ -99,6 +164,44 @@ const InvestigationsComponent = () => {
       </div>
 
       <div className="p-6 space-y-4">
+        {existingInvestigations.length > 0 && (
+          <div className="mb-4">
+            <FormLabel>View Previous Investigations</FormLabel>
+            <Select onValueChange={handleDateSelect}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select date to view investigation" />
+              </SelectTrigger>
+              <SelectContent>
+                {dateOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        <FormField
+          control={control}
+          name="investigations.date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Date
+              </FormLabel>
+              <FormControl>
+                <DatePicker
+                  date={field.value}
+                  setDate={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {sections.map((section) => {
           const Icon = section.icon;
           const isExpanded = expandedSection === section.id;

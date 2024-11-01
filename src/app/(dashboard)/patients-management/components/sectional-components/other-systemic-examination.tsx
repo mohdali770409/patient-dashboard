@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -22,6 +22,9 @@ import {
 import { cn } from "@/lib/utils";
 import { GiKidneys as Kidney } from "react-icons/gi";
 import { GiStomach as Stomach } from "react-icons/gi";
+import { Calendar } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectItem, SelectContent } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const systems = [
   { 
@@ -57,10 +60,58 @@ const examTypes = [
   { name: "auscultation", label: "Auscultation", icon: Stethoscope }
 ];
 
-const OtherSystemicExaminationComponent: React.FC = () => {
-  const { control } = useFormContext();
+interface OtherSystemicExamination {
+  cns: SystemExamFields;
+  renal: SystemExamFields;
+  gastrointestinal: SystemExamFields;
+  cardiovascular: SystemExamFields;
+  date: string;
+  _id: string;
+}
+
+interface SystemExamFields {
+  inspection: string;
+  palpation: string;
+  percussion: string;
+  auscultation: string;
+}
+
+interface OtherSystemicExaminationComponentProps {
+  existingExaminations?: any[];
+}
+
+const OtherSystemicExaminationComponent: React.FC<OtherSystemicExaminationComponentProps> = ({
+  existingExaminations = []
+}) => {
+  const { control, setValue } = useFormContext();
   const [expandedSystem, setExpandedSystem] = useState<string>("CNS");
   const [expandedExam, setExpandedExam] = useState<string>("inspection");
+
+  const dateOptions = useMemo(() => {
+    return existingExaminations.map(exam => ({
+      value: exam.date,
+      label: new Date(exam.date).toLocaleDateString(),
+      data: exam
+    }));
+  }, [existingExaminations]);
+
+  const handleDateSelect = (selectedDate: string) => {
+    const selectedExam = existingExaminations.find(
+      exam => exam.date === selectedDate
+    );
+    
+    if (selectedExam) {
+      setValue("otherSystemicExamination.date", new Date(selectedExam.date));
+      systems.forEach((system:any) => {
+        examTypes.forEach((examType:any) => {
+          setValue(
+            `otherSystemicExamination.${system.name.toLowerCase()}.${examType.name}`,
+            selectedExam[system.name.toLowerCase()][examType.name]
+          );
+        });
+      });
+    }
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
@@ -71,7 +122,45 @@ const OtherSystemicExaminationComponent: React.FC = () => {
         </h1>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-4">
+        {existingExaminations.length > 0 && (
+          <div className="mb-4">
+            <FormLabel>View Previous Examinations</FormLabel>
+            <Select onValueChange={handleDateSelect}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select date to view examination" />
+              </SelectTrigger>
+              <SelectContent>
+                {dateOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        <FormField
+          control={control}
+          name="otherSystemicExamination.date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Date
+              </FormLabel>
+              <FormControl>
+                <DatePicker
+                  date={field.value}
+                  setDate={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {systems.map((system) => {
           const SystemIcon = system.icon;
           const isSystemExpanded = expandedSystem === system.name;

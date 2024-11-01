@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -14,13 +14,55 @@ import {
   Stethoscope, 
   Activity,
   ChevronDown,
-  ChevronUp 
+  ChevronUp,
+  Calendar 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const SystemicExaminationComponent: React.FC = () => {
-  const { control } = useFormContext();
+interface SystemicExamination {
+  inspection: string;
+  palpation: string;
+  percussion: string;
+  auscultation: string;
+  date: string;
+  _id: string;
+}
+
+interface SystemicExaminationComponentProps {
+  existingExaminations?: SystemicExamination[];
+}
+
+const SystemicExaminationComponent: React.FC<SystemicExaminationComponentProps> = ({
+  existingExaminations = []
+}) => {
+  const { control, setValue } = useFormContext();
   const [expandedSection, setExpandedSection] = useState<string>("inspection");
+
+  // Format dates for display
+  const dateOptions = useMemo(() => {
+    return existingExaminations.map(exam => ({
+      value: exam.date,
+      label: new Date(exam.date).toLocaleDateString(),
+      data: exam
+    }));
+  }, [existingExaminations]);
+
+  // Handle date selection
+  const handleDateSelect = (selectedDate: string) => {
+    const selectedExam = existingExaminations.find(
+      exam => exam.date === selectedDate
+    );
+    
+    if (selectedExam) {
+      setValue("systemicExamination.date", new Date(selectedExam.date));
+      setValue("systemicExamination.inspection", selectedExam.inspection);
+      setValue("systemicExamination.palpation", selectedExam.palpation);
+      setValue("systemicExamination.percussion", selectedExam.percussion);
+      setValue("systemicExamination.auscultation", selectedExam.auscultation);
+    }
+  };
 
   const examinations = [
     { 
@@ -67,6 +109,44 @@ const SystemicExaminationComponent: React.FC = () => {
       </div>
 
       <div className="p-6 space-y-4">
+        {existingExaminations.length > 0 && (
+          <div className="mb-4">
+            <FormLabel>View Previous Examinations</FormLabel>
+            <Select onValueChange={handleDateSelect}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select date to view examination" />
+              </SelectTrigger>
+              <SelectContent>
+                {dateOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        <FormField
+          control={control}
+          name="systemicExamination.date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Date
+              </FormLabel>
+              <FormControl>
+                <DatePicker
+                  date={field.value}
+                  setDate={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {examinations.map((exam) => {
           const Icon = exam.icon;
           const isExpanded = expandedSection === exam.name;
