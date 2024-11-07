@@ -10,10 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   ChevronsUpDown,
+  ChevronUp,
+  ClipboardList,
   Eye,
   FilePenLine,
   MoreHorizontal,
   Trash,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -22,6 +25,31 @@ import { useToast } from "@/hooks/use-toast";
 import { ColumnDef } from "@tanstack/react-table";
 import { getPatientsData } from "@/services/patient.service";
 import DeleteButtonHandler from "./components/delete-button-handler";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip } from "@/components/ui/tooltip";
+import { format } from "date-fns";
+import {
+  Activity,
+  AlertCircle,
+  Calendar,
+  ChevronDown,
+  History,
+
+  Phone,
+  User2,
+  Mail,
+  MapPin,
+  Clock,
+  User,
+  CheckCircle2,
+  TrendingUp,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 const Patients = () => {
   const [patientsData, setPatientsData] = useState([]);
@@ -44,85 +72,254 @@ const Patients = () => {
 
   const columns: ColumnDef<any>[] = [
     {
-      accessorKey: "firstName",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="w-full p-0"
-          >
-            <div className="flex items-center w-full ">
-              <span> Name & Phone</span>
-              <ChevronsUpDown className=" h-[13px] mt-[2px]" />
-            </div>
-
-            {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
-          </Button>
-        );
-      },
-      enableGlobalFilter: true,
+      id: "name", 
+      accessorFn: (row) => `${row.firstName} ${row.lastName}`, // This will be used for sorting
+      header: ({ column }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-gray-900"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Patient Name
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronsUpDown className="h-4 w-4 text-gray-400" />
+          )}
+        </div>
+      ),
       cell: ({ row }) => {
-        const name =
-          `${row.original?.firstName} ${row.original?.lastName}` || "";
-        const phone = row.original?.phone || "";
+        const name = `${row.original.firstName} ${row.original.lastName}`;
         return (
-          <div>
-            <div className="font-semibold">{name}</div>
-            <div className="text-sm text-gray-500">{phone}</div>
+          <div className="flex items-center py-3">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 flex items-center justify-center text-white font-medium">
+              {name.charAt(0)}
+            </div>
+            <span className="ml-3 font-medium text-gray-700">{name}</span>
           </div>
         );
       },
     },
     {
+      accessorKey: "phone",
+      header: ({ column }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-gray-900"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Phone
+          {column.getIsSorted() && (
+            column.getIsSorted() === "asc" ? 
+              <ChevronUp className="h-4 w-4" /> : 
+              <ChevronDown className="h-4 w-4" />
+          )}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-gray-600">{row.original.phone}</div>
+      ),
+    },
+    {
       accessorKey: "age",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="w-full p-0"
-          >
-            <div className="flex items-center w-full ">
-              <span> Age</span>
-              <ChevronsUpDown className=" h-[13px] mt-[2px]" />
-            </div>
-
-            {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        return <div className="font-semibold">{row.original?.age}</div>;
-      },
+      header: ({ column }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-gray-900"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Age
+          {column.getIsSorted() && (
+            column.getIsSorted() === "asc" ? 
+              <ChevronUp className="h-4 w-4" /> : 
+              <ChevronDown className="h-4 w-4" />
+          )}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-gray-600">{row.original.age} years</div>
+      ),
     },
     {
       accessorKey: "gender",
-      header: "Gender",
-      cell: ({ row }) => <div>{row.original.gender}</div>,
+      header: ({ column }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-gray-900"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Gender
+          {column.getIsSorted() && (
+            column.getIsSorted() === "asc" ? 
+              <ChevronUp className="h-4 w-4" /> : 
+              <ChevronDown className="h-4 w-4" />
+          )}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className={cn(
+          "px-2.5 py-0.5 rounded-full text-xs font-medium w-fit",
+          row.original.gender === "male" && "bg-blue-50 text-blue-700",
+          row.original.gender === "female" && "bg-pink-50 text-pink-700",
+          row.original.gender === "other" && "bg-purple-50 text-purple-700"
+        )}>
+          {row.original.gender}
+        </div>
+      ),
     },
     {
-      accessorKey: "address",
-      header: "Address",
+      
+      accessorKey: "street",
+      header: ({ column }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-gray-900"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Location
+          {column.getIsSorted() && (
+            column.getIsSorted() === "asc" ? 
+              <ChevronUp className="h-4 w-4" /> : 
+              <ChevronDown className="h-4 w-4" />
+          )}
+        </div>
+      ),
       cell: ({ row }) => {
-        return `${row.original?.address}`;
+        const address = `${row.original.street}, ${row.original.city}, ${row.original.state}`;
+        return (
+          <div className="text-gray-600 truncate max-w-[200px]">{address}</div>
+        );
       },
     },
     {
-      accessorKey: "isCured",
-      header: "Cured",
-      cell: ({ row }) => (
-        // <VenueSuspendToggle
-        //   checked={row.original.isActive}
-        //   turfId={row.original._id}
-        // />
-        <p>Yes</p>
+      accessorKey: "status",
+      header: ({ column }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-gray-900"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronsUpDown className="h-4 w-4 text-gray-400" />
+          )}
+        </div>
       ),
-    },
+      cell: ({ row }) => {
+        const status = row.original.status?.toLowerCase() || "improving";
+        
+        const statusConfig = {
+          cured: {
+            color: "bg-green-50 text-green-700 border-green-200",
+            icon: <CheckCircle2 className="h-3 w-3" />,
+            label: "Cured"
+          },
+          defaulter: {
+            color: "bg-red-50 text-red-700 border-red-200",
+            icon: <AlertCircle className="h-3 w-3" />,
+            label: "Defaulter"
+          },
+          improving: {
+            color: "bg-blue-50 text-blue-700 border-blue-200",
+            icon: <TrendingUp className="h-3 w-3" />,
+            label: "Improving"
+          },
+          relapser: {
+            color: "bg-amber-50 text-amber-700 border-amber-200",
+            icon: <History className="h-3 w-3" />,
+            label: "Relapser"
+          }
+        };
 
+        const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.improving;
+
+        return (
+          <div className={cn(
+            "px-2.5 py-1 rounded-full text-xs font-medium w-fit",
+            "flex items-center gap-1.5 border",
+            config.color
+          )}>
+            {config.icon}
+            {config.label}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "lastVisit",
+      header: ({ column }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-gray-900"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Visit
+          {column.getIsSorted() && (
+            column.getIsSorted() === "asc" ? 
+              <ChevronUp className="h-4 w-4" /> : 
+              <ChevronDown className="h-4 w-4" />
+          )}
+        </div>
+      ),
+      cell: ({ row }) => {
+        const lastVisit = row.original.updatedAt;
+        return (
+          <div className="text-gray-600">
+            {format(new Date(lastVisit), "MMM dd, yyyy")}
+          </div>
+        );
+      },
+    },
+    
+    {
+      accessorKey: "symptomsAndDiseases",
+      header: "Symptoms & Diseases",
+      cell: ({ row }) => {
+        const symptoms = row.original.symptomsAndDiseases || [];
+        const MAX_DISPLAY = 3;
+
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-wrap gap-1.5">
+              {symptoms.slice(0, MAX_DISPLAY).map((symptom: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 capitalize"
+                >
+                  {symptom.replace(/_/g, ' ')}
+                </span>
+              ))}
+              {symptoms.length > MAX_DISPLAY && (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className="h-5 px-2 text-xs rounded-full bg-gray-100 text-gray-700"
+                    >
+                      +{symptoms.length - MAX_DISPLAY} more
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-64 p-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {symptoms.slice(MAX_DISPLAY).map((symptom: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 capitalize"
+                        >
+                          {symptom.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
     {
       id: "actions",
-      header: "Action",
+      header: "Actions",
       cell: ({ row }) => {
         return (
           <DropdownMenu>
@@ -190,8 +387,20 @@ const Patients = () => {
     },
   ];
   return (
-    <div className="w-full">
-      <DataTable columns={columns} patientsHeader={true} data={patientsData} />
+    <div className="w-full space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-800">Patients Management</h2>
+        <Button asChild className="bg-primary hover:bg-primary/90">
+          <Link href="/patients-management/add-and-edit-patient">
+            Add New Patient
+          </Link>
+        </Button>
+      </div>
+      <DataTable 
+        columns={columns} 
+        data={patientsData}
+        patientsHeader={true}
+      />
     </div>
   );
 };

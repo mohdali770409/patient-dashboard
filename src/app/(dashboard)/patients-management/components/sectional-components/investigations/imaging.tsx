@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiImageUpload } from "@/components/multi-image-upload";
+import { uploadToS3 } from "@/lib/s3-upload";
+import { useToast } from "@/hooks/use-toast";
 
 const imagingTypes = [
   { name: "xray", label: "X-RAY" },
@@ -22,7 +24,32 @@ const imagingTypes = [
 ];
 
 const ImagingComponent = () => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
+  const { toast } = useToast();
+
+  const handleImageUpload = async (files: File[], type: string) => {
+    try {
+      const uploadPromises = files.map(async (file:any) => {
+        const imageUrl = await uploadToS3(file);
+        return imageUrl;
+      });
+
+      const imageUrls = await Promise.all(uploadPromises);
+      setValue(`investigations.imaging.${type}.images`, imageUrls);
+      
+      toast({
+        title: "Images uploaded successfully",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Error uploading images",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,7 +86,7 @@ const ImagingComponent = () => {
                 <FormControl>
                   <MultiImageUpload
                     value={field.value}
-                    onChange={field.onChange}
+                    onChange={(files:any) => handleImageUpload(files, type.name)}
                     maxFiles={5}
                   />
                 </FormControl>
