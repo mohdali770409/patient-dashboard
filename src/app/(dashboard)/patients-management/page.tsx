@@ -390,11 +390,6 @@ const Patients = () => {
     <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-800">Patients Management</h2>
-        <Button asChild className="bg-primary hover:bg-primary/90">
-          <Link href="/patients-management/add-and-edit-patient">
-            Add New Patient
-          </Link>
-        </Button>
       </div>
       <DataTable 
         columns={columns} 
