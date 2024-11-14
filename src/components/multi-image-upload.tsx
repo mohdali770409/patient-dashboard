@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { Button } from '@/components/ui/button';
-import { ImagePlus, X } from 'lucide-react';
+import React, { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { Button } from "@/components/ui/button";
+import { ImagePlus, X } from "lucide-react";
 
 interface MultiImageUploadProps {
   value: string[];
@@ -34,7 +34,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
     },
     maxFiles: maxFiles - value.length,
   });
@@ -49,11 +49,14 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {value.map((image, index) => (
           <div key={index} className="relative group">
-            <img
-              src={image}
-              alt={`Upload ${index + 1}`}
-              className="w-full h-32 object-cover rounded-md"
-            />
+            <a href={image} target="_blank" rel="noopener noreferrer">
+              <img
+                src={image}
+                alt={`Upload ${index + 1}`}
+                className="w-full h-32 object-cover rounded-md"
+              />
+            </a>
+
             <button
               type="button"
               onClick={() => removeImage(index)}
@@ -73,7 +76,11 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
           className={`
             border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
             transition-colors duration-200 ease-in-out
-            ${isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-primary'}
+            ${
+              isDragActive
+                ? "border-primary bg-primary/5"
+                : "border-gray-300 hover:border-primary"
+            }
           `}
         >
           <input {...getInputProps()} />

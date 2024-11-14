@@ -13,13 +13,19 @@ const Sidebar = () => {
     {
       title: "Dashboard",
       svgUrl: "/sidebar-icons/dashboard.svg",
-      route: "/dashboard",
+      route: "/dashboard-overview",
       isSelected: false,
     },
     {
       title: "Patients Management",
       svgUrl: "/sidebar-icons/patient.svg",
       route: "/patients-management",
+      isSelected: false,
+    },
+    {
+      title: "Appointments",
+      svgUrl: "/sidebar-icons/appointments.svg",
+      route: "/appointments",
       isSelected: false,
     },
   ];
