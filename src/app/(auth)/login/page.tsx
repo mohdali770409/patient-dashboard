@@ -1,21 +1,54 @@
 "use client"
 import React from 'react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
+import { useToast } from "@/hooks/use-toast"
+import { login } from '@/services/auth.service'
+import Cookies from "js-cookie";
 
 const LoginPage = () => {
+  const router = useRouter()
+  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log('Login attempt:', formData)
+    setIsLoading(true)
+
+    try {
+      const response = await login(formData)
+      
+      if (response.success) {
+        toast({
+          title: "Success!",
+          description: "You've successfully logged in.",
+          variant: "default",
+        })
+        
+        // Store user data if needed
+        Cookies.set("ugm-jwt-token", response?.data?.token, { expires: 180 });
+
+        
+        // Redirect to dashboard or home page
+        router.push('/dashboard-overview')
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -71,8 +104,16 @@ const LoginPage = () => {
               type="submit" 
               className="w-full h-11 bg-white hover:bg-gray-200 text-gray-900 font-medium 
                 transition-colors"
+              disabled={isLoading}
             >
-              Sign in
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <span className="h-4 w-4 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+                  Signing in...
+                </div>
+              ) : (
+                'Sign in'
+              )}
             </Button>
           </CardFooter>
         </form>

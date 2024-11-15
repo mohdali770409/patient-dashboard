@@ -5,7 +5,7 @@ import { useEffect } from "react";
 export default function Home() {
   const router = useRouter();
   useEffect(() => {
-    router.push("/patients-management");
+    router.push("/login");
   }, [router]);
   return <div></div>;
 }
