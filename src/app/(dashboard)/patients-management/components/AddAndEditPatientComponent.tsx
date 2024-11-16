@@ -35,6 +35,7 @@ import {
   OngoingTreatmentSchema,
   PatientParticularsSchema,
 } from "@/schema/patients.schema";
+import AppointmentsComponent from "@/components/appointment/appointments-component";
 interface AddAndEditPatientComponentProps {
   data: any;
 }
@@ -412,6 +413,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
             <TabsTrigger value="ongoingTreatment" disabled={!patientId}>
               Ongoing Treatment
             </TabsTrigger>
+            <TabsTrigger value="appointments" disabled={!patientId}>
+              Appointments
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -507,6 +511,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
               </div>
             </form>
           </Form>
+        </TabsContent>
+        <TabsContent value="appointments">
+          <AppointmentsComponent patientId={patientId} />
         </TabsContent>
       </Tabs>
     </div>

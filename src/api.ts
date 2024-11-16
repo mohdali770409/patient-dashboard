@@ -13,6 +13,13 @@ export const API ={
 
         // auth endpoints
         login: "/api/v1/auth/login",
+
+        // appointments endpoints
+        getAllAppointments: "/api/v1/appointments/getAllAppointments",
+        getUpcomingAppointments: "/api/v1/appointments/getUpcomingAppointments",
+        getPastAppointments: "/api/v1/appointments/getPastAppointments",
+        getAppointmentsByDate: "/api/v1/appointments/getAppointmentsByDate",
+        addEditAppointment:"/api/v1/appointments/addEditAppointment"
     }
 
 }
