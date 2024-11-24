@@ -36,6 +36,7 @@ import {
   PatientParticularsSchema,
 } from "@/schema/patients.schema";
 import AppointmentsComponent from "@/components/appointment/appointments-component";
+
 interface AddAndEditPatientComponentProps {
   data: any;
 }
@@ -70,7 +71,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         respiratoryRate:
           data?.vitalSigns[data?.vitalSigns?.length - 1]?.respiratoryRate ||
           undefined,
-        date:new Date(),
+        date: new Date(),
       },
       pilccod: {
         pallor: {
@@ -305,9 +306,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
     },
   });
 
-  const patientParticularsForm = useForm<
-    z.infer<typeof PatientParticularsSchema>
-  >({
+  const patientParticularsForm = useForm<z.infer<typeof PatientParticularsSchema>>({
     resolver: zodResolver(PatientParticularsSchema),
     defaultValues: {
       id: data?._id || "",
@@ -324,7 +323,10 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
       city: data?.city || "",
       state: data?.state || "",
       pinCode: data?.pinCode || "",
-      symptomsAndDiseases: data?.symptomsAndDiseases || [],
+      symptomsAndDiseases: {
+        symptoms: data?.symptomsAndDiseases?.symptoms || [],
+        diseases: data?.symptomsAndDiseases?.diseases || [],
+      },
     },
   });
 
@@ -396,8 +398,6 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
       console.error(error);
     }
   };
-
-  console.log("data from add and edit component", data);
 
   return (
     <div className="">

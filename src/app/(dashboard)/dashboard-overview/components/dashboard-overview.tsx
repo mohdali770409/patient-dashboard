@@ -13,6 +13,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from "recharts";
 
 const DashboardOverviewComponent = ({ data }: { data: any[] }) => {
@@ -46,13 +47,28 @@ const DashboardOverviewComponent = ({ data }: { data: any[] }) => {
 
   // Calculate symptoms frequency
   const symptomsCount: { [key: string]: number } = {};
+  const diseasesCount: { [key: string]: number } = {};
+  
   data?.forEach(patient => {
-    patient.symptomsAndDiseases?.forEach((symptom: string) => {
+    // Count symptoms
+    patient.symptomsAndDiseases?.symptoms?.forEach((symptom: string) => {
       symptomsCount[symptom] = (symptomsCount[symptom] || 0) + 1;
+    });
+    
+    // Count diseases
+    patient.symptomsAndDiseases?.diseases?.forEach((disease: string) => {
+      diseasesCount[disease] = (diseasesCount[disease] || 0) + 1;
     });
   });
 
-  const symptomsData = Object.entries(symptomsCount)
+  const symptomsData = Object?.entries(symptomsCount)
+    .map(([name, count]) => ({
+      name: name.replace(/_/g, ' '),
+      count,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  const diseasesData = Object?.entries(diseasesCount)
     .map(([name, count]) => ({
       name: name.replace(/_/g, ' '),
       count,
@@ -94,22 +110,39 @@ const DashboardOverviewComponent = ({ data }: { data: any[] }) => {
                   ))}
                 </Pie>
                 <Tooltip />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        {/* Common Symptoms */}
+        {/* Diseases Distribution */}
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Common Symptoms</h3>
+          <h3 className="text-lg font-semibold mb-4">Common Diseases</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={symptomsData.slice(0, 10)}>
+              <BarChart data={diseasesData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" angle={45} textAnchor="start" height={100} />
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="count" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Symptoms Distribution */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Common Symptoms</h3>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={symptomsData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" angle={45} textAnchor="start" height={100} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -138,7 +171,7 @@ const DashboardOverviewComponent = ({ data }: { data: any[] }) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {data?.map((patient, index) => (
+              {data?.map((patient) => (
                 <tr key={patient._id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {patient.firstName} {patient.lastName}

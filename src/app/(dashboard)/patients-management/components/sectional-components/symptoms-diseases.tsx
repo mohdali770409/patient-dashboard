@@ -10,8 +10,7 @@ import {
 import { MultiSelect } from "@/components/multi-select";
 import { Stethoscope } from "lucide-react";
 
-const symptomsAndDiseaseOptions = [
-  // Symptoms
+const symptomsOptions = [
   { label: "Fever", value: "fever" },
   { label: "Headache", value: "headache" },
   { label: "Fatigue", value: "fatigue" },
@@ -27,8 +26,9 @@ const symptomsAndDiseaseOptions = [
   { label: "Muscle Pain", value: "muscle_pain" },
   { label: "Back Pain", value: "back_pain" },
   { label: "Abdominal Pain", value: "abdominal_pain" },
-  
-  // Diseases
+];
+
+const diseasesOptions = [
   { label: "Diabetes", value: "diabetes" },
   { label: "Hypertension", value: "hypertension" },
   { label: "Heart Disease", value: "heart_disease" },
@@ -59,21 +59,49 @@ const SymptomsDiseases: React.FC = () => {
       </div>
 
       <div className="p-6">
+        {/* Symptoms MultiSelect */}
         <FormField
           control={control}
-          name="symptomsAndDiseases"
+          name="symptomsAndDiseases.symptoms"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-red-50">
                   <Stethoscope className="h-4 w-4 text-red-500" />
                 </div>
-                Select Symptoms and Diseases
+                Select Symptoms
               </FormLabel>
               <FormControl>
                 <MultiSelect
-                  options={symptomsAndDiseaseOptions}
-                  placeholder="Select symptoms and diseases"
+                  options={symptomsOptions}
+                  placeholder="Select symptoms"
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  maxCount={5}
+                  className="focus:ring-2 focus:ring-red-500"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Diseases MultiSelect */}
+        <FormField
+          control={control}
+          name="symptomsAndDiseases.diseases"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-red-50">
+                  <Stethoscope className="h-4 w-4 text-red-500" />
+                </div>
+                Select Diseases
+              </FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={diseasesOptions}
+                  placeholder="Select diseases"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   maxCount={5}

@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+// Define the schema for symptoms and diseases
+const SymptomsDiseasesSchema = z.object({
+  symptoms: z.array(z.string()).optional(),
+  diseases: z.array(z.string()).optional(),
+});
+
 export const CaseHistorySchema = z.object({
     id: z.string().optional(),
     historyOfMajorIllness: z.string().optional(),
@@ -170,19 +176,11 @@ export const CaseHistorySchema = z.object({
   
   export const PatientParticularsSchema = z.object({
     id: z.string().optional(),
-    registrationNumber: z
-      .string()
-      .min(1, { message: "Registration Number is required." }),
-    firstName: z
-      .string()
-      .min(2, { message: "First Name must be at least 2 characters." }),
+    registrationNumber: z.string().min(1, { message: "Registration Number is required." }),
+    firstName: z.string().min(2, { message: "First Name must be at least 2 characters." }),
     lastName: z.string().optional(),
     phone: z.string().min(10, { message: "Phone Number must be of 10 digits." }),
-    email: z
-      .string()
-      .email({ message: "Please enter a valid email address or leave it empty" })
-      .or(z.literal(""))
-      .optional(),
+    email: z.string().email({ message: "Please enter a valid email address or leave it empty" }).or(z.literal("")).optional(),
     religion: z.string().min(1, { message: "Religion is required." }),
     age: z.string(),
     gender: z.string().optional(),
@@ -191,7 +189,5 @@ export const CaseHistorySchema = z.object({
     city: z.string(),
     state: z.string(),
     pinCode: z.string(),
-    symptomsAndDiseases: z.array(z.string()).min(1, {
-      message: "Please select at least one symptom or disease",
-    }),
+    symptomsAndDiseases: SymptomsDiseasesSchema,
   });

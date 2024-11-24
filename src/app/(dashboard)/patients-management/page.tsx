@@ -269,12 +269,12 @@ const Patients = () => {
         );
       },
     },
-    
     {
       accessorKey: "symptomsAndDiseases",
       header: "Symptoms & Diseases",
       cell: ({ row }) => {
-        const symptoms = row.original.symptomsAndDiseases || [];
+        const symptoms = row.original?.symptomsAndDiseases?.symptoms || [];
+        const diseases = row.original?.symptomsAndDiseases?.diseases || [];
         const MAX_DISPLAY = 3;
 
         return (
@@ -306,6 +306,41 @@ const Patients = () => {
                           className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 capitalize"
                         >
                           {symptom.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {diseases.slice(0, MAX_DISPLAY).map((disease: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-700 capitalize"
+                >
+                  {disease.replace(/_/g, ' ')}
+                </span>
+              ))}
+              {diseases.length > MAX_DISPLAY && (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className="h-5 px-2 text-xs rounded-full bg-gray-200 text-gray-700"
+                    >
+                      +{diseases.length - MAX_DISPLAY} more
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-64 p-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {diseases.slice(MAX_DISPLAY).map((disease: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-700 capitalize"
+                        >
+                          {disease.replace(/_/g, ' ')}
                         </span>
                       ))}
                     </div>
