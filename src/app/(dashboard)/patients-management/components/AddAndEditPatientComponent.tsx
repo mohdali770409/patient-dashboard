@@ -36,6 +36,7 @@ import {
   PatientParticularsSchema,
 } from "@/schema/patients.schema";
 import AppointmentsComponent from "@/components/appointment/appointments-component";
+import RecoveryStoryBoard from "./sectional-components/recovery-story-board";
 
 interface AddAndEditPatientComponentProps {
   data: any;
@@ -416,6 +417,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
             <TabsTrigger value="appointments" disabled={!patientId}>
               Appointments
             </TabsTrigger>
+            <TabsTrigger value="recoveryStoryBoard" disabled={!patientId}>
+              Recovery Story board
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -514,6 +518,9 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
         </TabsContent>
         <TabsContent value="appointments">
           <AppointmentsComponent patientId={patientId} />
+        </TabsContent>
+        <TabsContent value="recoveryStoryBoard">
+          <RecoveryStoryBoard patientId = {patientId} />
         </TabsContent>
       </Tabs>
     </div>

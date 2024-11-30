@@ -19,7 +19,13 @@ export const API ={
         getUpcomingAppointments: "/api/v1/appointments/getUpcomingAppointments",
         getPastAppointments: "/api/v1/appointments/getPastAppointments",
         getAppointmentsByDate: "/api/v1/appointments/getAppointmentsByDate",
-        addEditAppointment:"/api/v1/appointments/addEditAppointment"
+        addEditAppointment:"/api/v1/appointments/addEditAppointment",
+
+        // recovery story board
+        createEditRecoveryUpdate: "/api/v1/recovery/createEditRecoveryUpdate",
+        getSingleRecoveryUpdate:"/api/v1/recovery/getSingleRecoveryUpdate"
+
+        
     }
 
 }

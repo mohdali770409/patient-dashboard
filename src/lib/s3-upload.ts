@@ -8,29 +8,39 @@ const s3Client = new S3Client({
   },
 });
 
-export async function uploadToS3(data: string): Promise<string> {
+export async function uploadToS3(data: string | File): Promise<string> {
   // If the data is already an S3 URL, return it as-is
-  if (data.startsWith('https://')) {
+  if (typeof data === 'string' && data.startsWith('https://')) {
     return data;
   }
 
   try {
-    // Extract the mime type and base64 content
-    const matches = data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    let buffer: Buffer;
+    let fileType: string;
+    let uniqueFileName: string;
 
-    if (!matches || matches.length !== 3) {
-      throw new Error("Invalid base64 string format");
+    if (typeof data === 'string') {
+      // Handle base64 image upload
+      const matches = data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+      if (!matches || matches.length !== 3) {
+        throw new Error("Invalid base64 string format");
+      }
+
+      fileType = matches[1];
+      const base64Content = matches[2];
+
+      // Convert base64 to buffer
+      buffer = Buffer.from(base64Content, "base64");
+      const extension = fileType.split("/")[1];
+      uniqueFileName = `patient-${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
+    } else {
+      // Handle file upload (for videos and other files)
+      buffer = await data.arrayBuffer().then(Buffer.from);
+      fileType = data.type;
+      const extension = fileType.split("/")[1];
+      uniqueFileName = `patient-${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
     }
-
-    const fileType = matches[1];
-    const base64Content = matches[2];
-
-    // Convert base64 to buffer
-    const buffer = Buffer.from(base64Content, "base64");
-
-    // Generate a unique filename with the correct extension
-    const extension = fileType.split("/")[1];
-    const uniqueFileName = `patient-${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
 
     // Create the command to upload to S3
     const command = new PutObjectCommand({

@@ -5,3 +5,7 @@ export interface sidebarItem {
   isSelected: boolean;
   description?: string;
 }
+export interface FileWithPreview extends File {
+  preview: string;
+  type: 'image' | 'video';
+}
