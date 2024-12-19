@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
+import { Country, State, City } from "country-state-city";
 import {
   FormControl,
   FormField,
@@ -8,8 +9,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Home, Building, Globe, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const DEFAULT_COUNTRY = "IN"; // ISO code for India
 
 const ADDRESS_FIELDS = [
   {
@@ -17,40 +21,71 @@ const ADDRESS_FIELDS = [
     label: "Street",
     placeholder: "Enter street/village",
     icon: Home,
-    required: false
+    required: false,
+    type: "input"
   },
   {
     name: "locality",
     label: "Locality",
     placeholder: "Locality",
     icon: MapPin,
-    required: true
-  },
-  {
-    name: "city",
-    label: "City",
-    placeholder: "City",
-    icon: Building,
-    required: true
+    required: true,
+    type: "input"
   },
   {
     name: "state",
     label: "State",
-    placeholder: "State",
+    placeholder: "Select State",
     icon: Globe,
-    required: true
+    required: true,
+    type: "select"
+  },
+  {
+    name: "city",
+    label: "City",
+    placeholder: "Select City",
+    icon: Building,
+    required: true,
+    type: "select"
   },
   {
     name: "pinCode",
     label: "PIN Code",
     placeholder: "PIN Code",
     icon: Hash,
-    required: true
+    required: true,
+    type: "input"
   }
 ];
 
 const AddressComponent: React.FC = () => {
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+  const selectedState = watch("state");
+
+  const states = useMemo(() => {
+    return State.getStatesOfCountry(DEFAULT_COUNTRY);
+  }, []);
+
+  const cities = useMemo(() => {
+    return selectedState ? City.getCitiesOfState(DEFAULT_COUNTRY, selectedState) : [];
+  }, [selectedState]);
+
+  const getOptionsForField = (fieldName: string) => {
+    switch (fieldName) {
+      case "state":
+        return states.map(state => ({
+          value: state.isoCode,
+          label: state.name
+        }));
+      case "city":
+        return cities.map(city => ({
+          value: city.name,
+          label: city.name
+        }));
+      default:
+        return [];
+    }
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
@@ -77,11 +112,29 @@ const AddressComponent: React.FC = () => {
                       {field.label}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder={field.placeholder}
-                        className="focus:ring-2 focus:ring-purple-500"
-                        {...formField}
-                      />
+                      {field.type === "select" ? (
+                        <Select
+                          onValueChange={formField.onChange}
+                          value={formField.value}
+                        >
+                          <SelectTrigger className="focus:ring-2 focus:ring-purple-500">
+                            <SelectValue placeholder={field.placeholder} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getOptionsForField(field.name).map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          placeholder={field.placeholder}
+                          className="focus:ring-2 focus:ring-purple-500"
+                          {...formField}
+                        />
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
