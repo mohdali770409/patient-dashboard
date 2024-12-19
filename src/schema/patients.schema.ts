@@ -176,12 +176,12 @@ export const CaseHistorySchema = z.object({
   
   export const PatientParticularsSchema = z.object({
     id: z.string().optional(),
-    registrationNumber: z.string().min(1, { message: "Registration Number is required." }),
-    firstName: z.string().min(2, { message: "First Name must be at least 2 characters." }),
+    registrationNumber: z.string().optional(),
+    firstName: z.string().min(3, { message: "First Name must be at least 3 characters." }),
     lastName: z.string().optional(),
-    phone: z.string().min(10, { message: "Phone Number must be of 10 digits." }),
+    phone: z.string().optional(),
     email: z.string().email({ message: "Please enter a valid email address or leave it empty" }).or(z.literal("")).optional(),
-    religion: z.string().min(1, { message: "Religion is required." }),
+    religion: z.string().optional(),
     age: z.string(),
     gender: z.string().optional(),
     street: z.string(),

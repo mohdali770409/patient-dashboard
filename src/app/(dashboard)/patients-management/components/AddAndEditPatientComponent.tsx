@@ -54,11 +54,11 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
     resolver: zodResolver(CaseHistorySchema),
     defaultValues: {
       id: data?._id || "",
-      historyOfMajorIllness: data?.historyOfMajorIllness || "",
+      historyOfMajorIllness: data?.historyOfMajorIllness || "N/A",
       majorDiseases: data?.majorDiseases || [],
-      provisionalDiagnosis: data?.provisionalDiagnosis || "",
-      differentialDiagnosis: data?.differentialDiagnosis || "",
-      finalDiagnosis: data?.finalDiagnosis || "",
+      provisionalDiagnosis: data?.provisionalDiagnosis || "N/A",
+      differentialDiagnosis: data?.differentialDiagnosis || "N/A",
+      finalDiagnosis: data?.finalDiagnosis || "N/A",
       vitalSigns: {
         temperature:
           data?.vitalSigns[data?.vitalSigns?.length - 1]?.temperature ||
@@ -134,30 +134,30 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
       additionalHistory: {
         feverHistory:
           data?.additionalHistory[data?.additionalHistory?.length - 1]
-            ?.feverHistory || "",
+            ?.feverHistory || "N/A",
         tuberculosisHistory:
           data?.additionalHistory[data?.additionalHistory?.length - 1]
-            ?.tuberculosisHistory || "",
+            ?.tuberculosisHistory || "N/A",
       },
       localExamination: {
         others:
           data?.localExamination[data?.localExamination?.length - 1]?.others ||
-          "",
+          "N/A",
         date:new Date(),
       },
       systemicExamination: {
         inspection:
           data?.systemicExamination[data?.systemicExamination?.length - 1]
-            ?.inspection || "",
+            ?.inspection || "N/A",
         palpation:
           data?.systemicExamination[data?.systemicExamination?.length - 1]
-            ?.palpation || "",
+            ?.palpation || "N/A",
         percussion:
           data?.systemicExamination[data?.systemicExamination?.length - 1]
-            ?.percussion || "",
+            ?.percussion || "N/A",
         auscultation:
           data?.systemicExamination[data?.systemicExamination?.length - 1]
-            ?.auscultation || "",
+            ?.auscultation || "N/A",
         date:  new Date(),
       },
       otherSystemicExamination: {
@@ -165,71 +165,71 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
           inspection:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cns?.inspection || "",
+            ]?.cns?.inspection || "N/A",
           palpation:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cns?.palpation || "",
+            ]?.cns?.palpation || "N/A",
           percussion:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cns?.percussion || "",
+            ]?.cns?.percussion || "N/A",
           auscultation:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cns?.auscultation || "",
+            ]?.cns?.auscultation || "N/A",
         },
         renal: {
           inspection:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.renal?.inspection || "",
+            ]?.renal?.inspection || "N/A",
           palpation:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.renal?.palpation || "",
+            ]?.renal?.palpation || "N/A",
           percussion:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.renal?.percussion || "",
+            ]?.renal?.percussion || "N/A",
           auscultation:
-            data?.otherSystemicExamination?.renal?.auscultation || "",
+            data?.otherSystemicExamination?.renal?.auscultation || "N/A",
         },
         gastrointestinal: {
           inspection:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.gastrointestinal?.inspection || "",
+            ]?.gastrointestinal?.inspection || "N/A",
           palpation:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.gastrointestinal?.palpation || "",
+            ]?.gastrointestinal?.palpation || "N/A",
           percussion:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.gastrointestinal?.percussion || "",
+            ]?.gastrointestinal?.percussion || "N/A",
           auscultation:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.gastrointestinal?.auscultation || "",
+            ]?.gastrointestinal?.auscultation || "N/A",
         },
         cardiovascular: {
           inspection:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cardiovascular?.inspection || "",
+            ]?.cardiovascular?.inspection || "N/A",
           palpation:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cardiovascular?.palpation || "",
+            ]?.cardiovascular?.palpation || "N/A",
           percussion:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cardiovascular?.percussion || "",
+            ]?.cardiovascular?.percussion || "N/A",
           auscultation:
             data?.otherSystemicExamination[
               data?.otherSystemicExamination?.length - 1
-            ]?.cardiovascular?.auscultation || "",
+            ]?.cardiovascular?.auscultation || "N/A",
         },
         date:new Date(),
       },
@@ -239,53 +239,53 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
             ?.treatmentReceivedAtTimeOfAdmission?.[
             data?.treatmentReceivedAtPreviousHospital
               ?.treatmentReceivedAtTimeOfAdmission?.length - 1
-          ]?.treatment || "",
+          ]?.treatment || "N/A",
         dischargeWithFollowingTreatment:
           data?.treatmentReceivedAtPreviousHospital
             ?.dischargeWithFollowingTreatment[
             data?.treatmentReceivedAtPreviousHospital
               ?.dischargeWithFollowingTreatment?.length - 1
-          ]?.treatment || "",
+          ]?.treatment || "N/A",
       },
       medicalHistory: {
         historyOfPresentIllness:
-          data?.medicalHistory?.historyOfPresentIllness || "",
-        pastHistory: data?.medicalHistory?.pastHistory || "",
-        personalHistory: data?.medicalHistory?.personalHistory || "",
-        familyHistory: data?.medicalHistory?.familyHistory || "",
+          data?.medicalHistory?.historyOfPresentIllness || "N/A",
+        pastHistory: data?.medicalHistory?.pastHistory || "N/A",
+        personalHistory: data?.medicalHistory?.personalHistory || "N/A",
+        familyHistory: data?.medicalHistory?.familyHistory || "N/A",
         historyOfMajorIllness:
-          data?.medicalHistory?.historyOfMajorIllness || "",
+          data?.medicalHistory?.historyOfMajorIllness || "N/A",
       },
       investigations: {
         laboratoryAnalysis: data?.investigations[
           data?.investigations?.length - 1
         ]?.laboratoryAnalysis || {
           bodyFluid: {},
-          urineAnalysis: "",
-          stoolAnalysis: "",
-          others: "",
+          urineAnalysis: "N/A",
+          stoolAnalysis: "N/A",
+          others: "N/A",
         },
         imaging: data?.investigations[data?.investigations?.length - 1]
           ?.imaging || {
-          xray: { report: "", images: [] },
-          ct: { report: "", images: [] },
-          cect: { report: "", images: [] },
-          hrct: { report: "", images: [] },
-          mri: { report: "", images: [] },
-          hsg: { report: "", images: [] },
-          usg: { report: "", images: [] },
-          others: { report: "", images: [] },
+          xray: { report: "N/A", images: [] },
+          ct: { report: "N/A", images: [] },
+          cect: { report: "N/A", images: [] },
+          hrct: { report: "N/A", images: [] },
+          mri: { report: "N/A", images: [] },
+          hsg: { report: "N/A", images: [] },
+          usg: { report: "N/A", images: [] },
+          others: { report: "N/A", images: [] },
         },
         biopsy:
-          data?.investigations[data?.investigations?.length - 1]?.biopsy || "",
+          data?.investigations[data?.investigations?.length - 1]?.biopsy || "N/A",
         markers:
-          data?.investigations[data?.investigations?.length - 1]?.markers || "",
+          data?.investigations[data?.investigations?.length - 1]?.markers || "N/A",
         date: new Date(),
       },
       chiefComplaint: {
         complaint:
           data?.chiefComplaint[data?.chiefComplaint?.length - 1]?.complaint ||
-          "",
+          "N/A",
         date: new Date(),
       },
     },
@@ -298,7 +298,7 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
       ourPlanOfAction: {
         treatment:
           data?.ourPlanOfAction[data?.ourPlanOfAction?.length - 1]?.treatment ||
-          "",
+          "N/A",
         date:
           data?.ourPlanOfAction[data?.ourPlanOfAction?.length - 1]?.date ||
           new Date(),

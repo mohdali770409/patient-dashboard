@@ -22,8 +22,8 @@ import {
 } from "@/services/recovery-story-board.service";
 
 interface StoryFormValues {
-  title: string;
-  description: string;
+  // title: string;
+  // description: string;
   images: string[];
   videos: string[];
   patientId: string;
@@ -35,14 +35,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const RecoveryStorySchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(200, "Title must be less than 200 characters"),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .max(1000, "Description must be less than 1000 characters"),
+  // title: z
+  //   .string()
+  //   .min(1, "Title is required")
+  //   .max(200, "Title must be less than 200 characters"),
+  // description: z
+  //   .string()
+  //   .min(10, "Description must be at least 10 characters")
+  //   .max(1000, "Description must be less than 1000 characters"),
   images: z.array(z.string().url("Invalid image URL")),
   videos: z.array(z.string().url("Invalid video URL")),
   patientId: z.string().min(1, "Patient ID is required"),
@@ -58,8 +58,8 @@ const RecoveryStoryBoard = ({ patientId }: { patientId: string }) => {
   const form = useForm<RecoveryStoryFormValues>({
     resolver: zodResolver(RecoveryStorySchema),
     defaultValues: {
-      title: "",
-      description: "",
+      // title: "",
+      // description: "",
       images: [],
       videos: [],
       patientId: patientId,
@@ -73,8 +73,8 @@ const RecoveryStoryBoard = ({ patientId }: { patientId: string }) => {
 
         if (existingStory) {
           form.reset({
-            title: existingStory.title || "",
-            description: existingStory.description || "",
+            // title: existingStory.title || "",
+            // description: existingStory.description || "",
             images: existingStory.images || [],
             videos: existingStory.videos || [],
             patientId: patientId,
@@ -221,81 +221,56 @@ const RecoveryStoryBoard = ({ patientId }: { patientId: string }) => {
   };
 
   return (
-    <Card className="w-full mx-auto p-6">
+    <Card className="w-full mx-auto p-8 bg-white shadow-lg rounded-xl">
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Recovery Story Board</h2>
+        <p className="text-gray-600">Document the patient's recovery journey with photos and videos.</p>
+      </div>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Story Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter story title" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Story Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Share your recovery story..."
-                    className="min-h-[150px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
             name="images"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Images</FormLabel>
+                <FormLabel className="text-lg font-medium text-gray-700">Images</FormLabel>
                 <FormControl>
-                  <div className="space-y-4">
-                    <Input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                      disabled={isUploading}
-                    />
+                  <div className="space-y-6">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-primary transition-colors">
+                      <Input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                        className="file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                        disabled={isUploading}
+                      />
+                      <p className="text-sm text-gray-500 mt-2">Upload multiple images (max 10MB each)</p>
+                    </div>
 
                     {field.value && field.value.length > 0 && (
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {field.value.map((url, index) => (
-                          <div
-                            key={index}
-                            className="relative group aspect-square"
-                          >
-                            <a href={`${url}`} target="_blank">
-                              <Image
-                                src={url}
-                                alt={`Uploaded image ${index + 1}`}
-                                fill
-                                className="object-cover rounded-lg"
-                              />
-                            </a>
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              className="absolute top-2 right-2 p-1 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X className="w-4 h-4 text-white" />
-                            </button>
+                          <div key={index} className="relative group rounded-xl overflow-hidden shadow-md">
+                            <div className="aspect-square relative">
+                              <a href={url} target="_blank" rel="noopener noreferrer">
+                                <Image
+                                  src={url}
+                                  alt={`Uploaded image ${index + 1}`}
+                                  fill
+                                  className="object-cover transition-transform group-hover:scale-105"
+                                />
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-600"
+                              >
+                                <X className="w-4 h-4 text-white" />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -312,36 +287,39 @@ const RecoveryStoryBoard = ({ patientId }: { patientId: string }) => {
             name="videos"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Videos</FormLabel>
+                <FormLabel className="text-lg font-medium text-gray-700">Videos</FormLabel>
                 <FormControl>
-                  <div className="space-y-4">
-                    <Input
-                      type="file"
-                      accept="video/*"
-                      multiple
-                      onChange={handleVideoUpload}
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                      disabled={isUploading}
-                    />
+                  <div className="space-y-6">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-primary transition-colors">
+                      <Input
+                        type="file"
+                        accept="video/*"
+                        multiple
+                        onChange={handleVideoUpload}
+                        className="file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                        disabled={isUploading}
+                      />
+                      <p className="text-sm text-gray-500 mt-2">Upload multiple videos (max 100MB each)</p>
+                    </div>
+
                     {field.value && field.value.length > 0 && (
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {field.value.map((url, index) => (
-                          <div
-                            key={index}
-                            className="relative group aspect-video"
-                          >
-                            <video
-                              src={url}
-                              controls
-                              className="w-full h-full object-cover rounded-lg"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeVideo(index)}
-                              className="absolute top-2 right-2 p-1 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X className="w-4 h-4 text-white" />
-                            </button>
+                          <div key={index} className="relative group rounded-xl overflow-hidden shadow-md bg-gray-100">
+                            <div className="aspect-video relative">
+                              <video
+                                src={url}
+                                controls
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeVideo(index)}
+                                className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-600"
+                              >
+                                <X className="w-4 h-4 text-white" />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -353,12 +331,16 @@ const RecoveryStoryBoard = ({ patientId }: { patientId: string }) => {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isUploading}>
+          <Button 
+            type="submit" 
+            className="w-full py-6 text-lg font-medium transition-all duration-200 hover:scale-[1.02]" 
+            disabled={isUploading}
+          >
             {isUploading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
-              </>
+              <div className="flex items-center justify-center space-x-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Uploading...</span>
+              </div>
             ) : (
               "Save Story"
             )}

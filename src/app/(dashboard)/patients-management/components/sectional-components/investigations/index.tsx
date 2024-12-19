@@ -234,8 +234,8 @@ const InvestigationsComponent: React.FC<InvestigationsComponentProps> = ({
 
               <div
                 className={cn(
-                  "overflow-hidden transition-all duration-200",
-                  isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                  "overflow-y-auto transition-all duration-200",
+                  isExpanded ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
                 )}
               >
                 <div className="p-4">
