@@ -133,11 +133,12 @@ const AddAndEditPatientComponent: React.FC<AddAndEditPatientComponentProps> = ({
       },
       additionalHistory: {
         feverHistory:
-          data?.additionalHistory[data?.additionalHistory?.length - 1]
-            ?.feverHistory || "N/A",
+        data?.additionalHistory ?  data?.additionalHistory[data?.additionalHistory?.length - 1]
+            ?.feverHistory : "N/A",
         tuberculosisHistory:
+        data?.additionalHistory ?
           data?.additionalHistory[data?.additionalHistory?.length - 1]
-            ?.tuberculosisHistory || "N/A",
+            ?.tuberculosisHistory : "N/A",
       },
       localExamination: {
         others:
